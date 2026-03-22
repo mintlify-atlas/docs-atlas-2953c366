@@ -1,0 +1,92 @@
+---
+title: 'Attendances'
+description: 'Register for events and track attendance status on MeetPoint.'
+keywords: ['attendance', 'register', 'cancel', 'event attendance', 'meetpoint']
+---
+
+Attendance records represent a user's participation status for a specific event. When a user registers for an event, an attendance entry is created linking their account to that event with a state of `CONFIRMADO`, `PENDIENTE`, or `CANCELADO`.
+
+## Attendance states
+
+| State | Meaning |
+|---|---|
+| `CONFIRMADO` | The user has confirmed they will attend. |
+| `PENDIENTE` | The user has expressed interest but not yet confirmed. |
+| `CANCELADO` | The user has cancelled their attendance. |
+
+## Attendance fields
+
+The `AttendanceDto` returned by the API contains the following fields.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique identifier for the attendance record. |
+| `userId` | `string` | ID of the attending user. |
+| `userName` | `string` | Display name of the attending user. |
+| `userMembership` | `MembershipDto` | Active membership of the user, if any. |
+| `eventId` | `Guid` | ID of the event being attended. |
+| `eventTitle` | `string` | Title of the event. |
+| `state` | `string` | Current attendance state (`CONFIRMADO`, `PENDIENTE`, or `CANCELADO`). |
+
+## Registering for an event
+
+<Steps>
+  <Step title="Authenticate">
+    Obtain a Bearer token by signing in. The `POST /api/attendances` endpoint requires the `User`, `Organizer`, or `Admin` role.
+  </Step>
+  <Step title="Choose a state">
+    Decide your initial attendance state. Use `CONFIRMADO` if you are certain you will attend, or `PENDIENTE` if you are still deciding.
+  </Step>
+  <Step title="Submit the attendance record">
+    Send a `POST` request to `/api/attendances` with your user ID, the event ID, and the chosen state.
+
+    ```http
+    POST /api/attendances
+    ```
+
+    ```json
+    {
+      "userId": "user-id-string",
+      "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+      "state": "CONFIRMADO"
+    }
+    ```
+
+    A successful response returns the newly created `AttendanceDto`.
+  </Step>
+  <Step title="Update your state if needed">
+    If your plans change, update your attendance state with a `PUT` request.
+
+    ```http
+    PUT /api/attendances/{id}
+    ```
+
+    ```json
+    {
+      "state": "CANCELADO"
+    }
+    ```
+  </Step>
+</Steps>
+
+## Cancelling attendance
+
+To cancel your registration, either update the `state` to `CANCELADO` via `PUT /api/attendances/{id}`, or delete the record entirely.
+
+```http
+DELETE /api/attendances/{id}
+```
+
+<Info>
+  Deleting an attendance record removes it entirely. Updating the state to `CANCELADO` keeps the record for tracking purposes.
+</Info>
+
+## Browsing attendances
+
+The list endpoint is publicly accessible and supports search and pagination.
+
+```http
+GET /api/attendances?searchTerm=&page=1
+```
+
+The event detail endpoint (`GET /api/events/{id}`) also includes the full attendance list and a total count in `attendancesCount`, which can be used to track event capacity.

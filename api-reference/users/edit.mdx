@@ -1,0 +1,111 @@
+---
+title: 'Edit user'
+description: 'Update an existing user account. Requires ADMIN or USER role.'
+---
+
+## PUT /api/users/{id}
+
+Updates the details of an existing user account.
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `ADMIN`, `USER`.
+</Info>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The string ID of the user to update.
+</ParamField>
+
+## Request body
+
+<ParamField path="email" type="string" required>
+  Updated email address for the user. Must be a valid email format.
+</ParamField>
+
+<ParamField path="password" type="string" required>
+  Updated password for the user. Must be at least 8 characters and include uppercase letters, lowercase letters, numbers, and special characters (`@$!%*?&`).
+</ParamField>
+
+<ParamField path="role" type="string" required>
+  Updated role for the user. Must be one of: `ADMIN`, `ORGANIZER`, `USER`.
+</ParamField>
+
+<ParamField path="firstName" type="string" required>
+  Updated first name of the user.
+</ParamField>
+
+<ParamField path="lastName" type="string" required>
+  Updated last name of the user.
+</ParamField>
+
+<ParamField path="location" type="string" required>
+  Updated geographic location of the user.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The updated user object. See [Get user](/api-reference/users/get-by-id) for the full field list.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request PUT \
+  --url 'https://api.meetpoint.com/api/users/user-abc123' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "email": "jane.doe@example.com",
+    "password": "NewSecure@5678",
+    "role": "ORGANIZER",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "Chicago, USA"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Usuario editado correctamente",
+  "data": {
+    "id": "user-abc123",
+    "roles": ["ORGANIZER"],
+    "email": "jane.doe@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "Chicago, USA",
+    "isBlocked": false,
+    "membership": null,
+    "eventsCount": 5,
+    "attendancesCount": 12,
+    "reportsCount": 0,
+    "ratingsCount": 15,
+    "averageRating": 4.7
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Usuario no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

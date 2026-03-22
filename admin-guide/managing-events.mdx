@@ -1,0 +1,69 @@
+---
+title: "Managing events"
+description: "How admins can list, edit, and delete any event across the platform."
+---
+
+The Events management page is available at `/administration/events-list`. It loads all events platform-wide using `GET /api/events` with search and pagination support.
+
+<Note>
+  Admins share the same `PUT /api/events/{id}` and `DELETE /api/events/{id}` endpoints as Users and Organizers. The difference is that the service layer grants Admins permission to modify **any** event regardless of who created it, whereas regular users can only edit their own events.
+</Note>
+
+## Listing all events
+
+The list view shows every event on the platform in a paginated table.
+
+| Column | Description |
+|---|---|
+| Title | Event name |
+| Category | The category the event belongs to |
+| Organizer | The user who created the event |
+| Date | Publication date of the event |
+| Comments | Total number of comments on the event |
+| Attendances | Total number of attendees registered |
+| Details | Link to the event detail page |
+
+Use the search bar to filter events by title and click **Buscar** to apply the filter. Pagination controls appear below the table.
+
+```http
+GET /api/events?searchTerm=music&page=1
+```
+
+## Creating an event
+
+The **Nuevo evento** button on the events list links to `/main/event/create`. Admins, Organizers, and Users all have access to this form.
+
+```http
+POST /api/events
+Authorization: Bearer <token>
+Content-Type: application/json
+```
+
+## Editing an event
+
+Admins can edit any event on the platform, regardless of the original organizer.
+
+```http
+PUT /api/events/{id}
+Authorization: Bearer <admin-token>
+Content-Type: application/json
+```
+
+The request body uses `EventEditDto`, which accepts the same fields used during creation.
+
+## Deleting an event
+
+Admins can delete any event on the platform.
+
+```http
+DELETE /api/events/{id}
+Authorization: Bearer <admin-token>
+```
+
+<Warning>
+  Deleting an event removes it permanently. Associated attendances, comments, and ratings tied to that event will also be affected according to the database cascade rules.
+</Warning>
+
+## How admin access differs from regular users
+
+Regular users and organizers can only edit or delete events they own. The events service enforces ownership checks for those roles. Admins bypass this check, giving them full write access to every event on the platform. This is important for content moderation — if an event violates platform rules, an admin can remove or correct it without needing to impersonate the organizer.

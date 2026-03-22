@@ -1,0 +1,114 @@
+---
+title: 'Block/unblock user'
+description: 'Toggle the blocked status of a user account. Requires ADMIN role.'
+---
+
+## PUT /api/users/block/{id}
+
+Toggles the blocked status of a user. Blocked users cannot log in or interact with the platform. Calling this endpoint on a blocked user will unblock them, and vice versa.
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `ADMIN`.
+</Info>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The string ID of the user to block or unblock.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      Unique string identifier for the user.
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      Email address of the user.
+    </ResponseField>
+    <ResponseField name="firstName" type="string">
+      First name of the user.
+    </ResponseField>
+    <ResponseField name="lastName" type="string">
+      Last name of the user.
+    </ResponseField>
+    <ResponseField name="isBlocked" type="boolean">
+      The new blocked status after the toggle. `true` means the user is now blocked; `false` means unblocked.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request PUT \
+  --url 'https://api.meetpoint.com/api/users/block/user-abc123' \
+  --header 'Authorization: Bearer <token>'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 (blocked)
+{
+  "status": true,
+  "message": "Usuario bloqueado correctamente",
+  "data": {
+    "id": "user-abc123",
+    "roles": ["ORGANIZER"],
+    "email": "jane.doe@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "New York, USA",
+    "isBlocked": true,
+    "membership": null,
+    "eventsCount": 5,
+    "attendancesCount": 12,
+    "reportsCount": 0,
+    "ratingsCount": 15,
+    "averageRating": 4.7
+  }
+}
+```
+
+```json 200 (unblocked)
+{
+  "status": true,
+  "message": "Usuario desbloqueado correctamente",
+  "data": {
+    "id": "user-abc123",
+    "roles": ["ORGANIZER"],
+    "email": "jane.doe@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "New York, USA",
+    "isBlocked": false,
+    "membership": null,
+    "eventsCount": 5,
+    "attendancesCount": 12,
+    "reportsCount": 0,
+    "ratingsCount": 15,
+    "averageRating": 4.7
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Usuario no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

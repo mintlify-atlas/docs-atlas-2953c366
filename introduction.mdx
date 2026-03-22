@@ -1,0 +1,76 @@
+---
+title: "Introduction"
+description: "MeetPoint is a social events platform where users can discover, create, and attend events, post comments, rate experiences, and manage memberships."
+---
+
+## What is MeetPoint?
+
+MeetPoint is a full-stack social platform centered around events. Users can discover events happening around them, register to attend, leave comments, rate experiences, and connect with others who share their interests.
+
+The platform supports three roles — **User**, **Organizer**, and **Admin** — each with different levels of access and capability.
+
+<CardGroup cols={2}>
+  <Card title="Get Started" icon="rocket" href="/quickstart">
+    Set up MeetPoint locally and explore the platform in minutes.
+  </Card>
+  <Card title="Core Features" icon="star" href="/features/events">
+    Learn about events, attendances, comments, ratings, and memberships.
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/auth/login">
+    Explore the full REST API powering MeetPoint.
+  </Card>
+  <Card title="Admin Guide" icon="shield" href="/admin-guide/dashboard">
+    Manage users, events, categories, and reports from the admin dashboard.
+  </Card>
+</CardGroup>
+
+## Platform overview
+
+MeetPoint consists of two main components:
+
+- **Backend** — An ASP.NET Core 8.0 REST API connected to Microsoft SQL Server, running in Docker. Handles authentication, business logic, and data persistence.
+- **Frontend** — A React 18 + Vite single-page application with Tailwind CSS. Provides the full user interface for both regular users and administrators.
+
+## Key capabilities
+
+<CardGroup cols={2}>
+  <Card title="Event management" icon="calendar">
+    Create, edit, and delete events with categories, dates, locations, and descriptions.
+  </Card>
+  <Card title="Attendance tracking" icon="users">
+    Register or cancel attendance at upcoming events. View who else is attending.
+  </Card>
+  <Card title="Comments & replies" icon="message">
+    Post comments on events and reply to other users in threaded conversations.
+  </Card>
+  <Card title="Star ratings" icon="star">
+    Rate events you've attended on a 1–5 star scale to help others decide.
+  </Card>
+  <Card title="Paid memberships" icon="credit-card">
+    Upgrade to a premium membership via PayPal to unlock organizer features.
+  </Card>
+  <Card title="Reporting system" icon="flag">
+    Report inappropriate users directly from their profile page.
+  </Card>
+</CardGroup>
+
+## Tech stack
+
+| Layer | Technology |
+|---|---|
+| Backend | ASP.NET Core 8.0 |
+| Database | Microsoft SQL Server (Docker) |
+| ORM | Entity Framework Core |
+| Auth | JWT Bearer + Refresh Tokens |
+| Frontend | React 18, Vite, Tailwind CSS |
+| State | Zustand |
+| Forms | Formik + Yup |
+| Payments | PayPal (via `@paypal/react-paypal-js`) |
+
+## User roles
+
+| Role | Description |
+|---|---|
+| **User** | Can create events, attend events, comment, rate, and manage their own account. |
+| **Organizer** | Upgraded users with a paid membership. Same capabilities as User with premium access. |
+| **Admin** | Full platform access including the dashboard, user blocking, and content moderation. |

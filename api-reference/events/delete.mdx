@@ -1,0 +1,72 @@
+---
+title: 'Delete event'
+description: 'Delete an event by ID. Requires authentication as a USER, ADMIN, or ORGANIZER.'
+---
+
+## DELETE /api/events/{id}
+
+Permanently deletes an event.
+
+<Warning>
+  This action is irreversible. All associated attendances and comments will also be removed.
+</Warning>
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `USER`, `ADMIN`, `ORGANIZER`.
+</Info>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The GUID of the event to delete.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The deleted event object.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request DELETE \
+  --url 'https://api.meetpoint.com/api/events/a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+  --header 'Authorization: Bearer <token>'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Evento eliminado correctamente",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "title": "Summer Music Festival",
+    "organizerId": "user-abc123",
+    "organizerName": "Jane Doe",
+    "date": "2026-07-20T18:00:00Z"
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Evento no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

@@ -1,0 +1,81 @@
+---
+title: 'Reports'
+description: 'Flag inappropriate organizer behavior and let admins review reported users.'
+keywords: ['reports', 'flag', 'moderation', 'admin', 'meetpoint']
+---
+
+The reports system lets any authenticated user flag an organizer for inappropriate behavior. Submitted reports are reviewed by administrators who can take action on the flagged accounts.
+
+<Warning>
+  The reports system is intended for genuine concerns about inappropriate conduct. Submitting false or malicious reports may result in action being taken against your own account.
+</Warning>
+
+## What reports are for
+
+A report targets an **organizer** (identified by `organizerId`) and includes a written reason describing the concern. Reports are not tied to a specific event — they flag the organizer as a user across the platform.
+
+## Report fields
+
+The `ReportDto` returned by the API contains the following fields.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique identifier for the report. |
+| `reporterId` | `string` | ID of the user who submitted the report. |
+| `reporterName` | `string` | Display name of the reporter. |
+| `organizerId` | `string` | ID of the organizer being reported. |
+| `organizerName` | `string` | Display name of the reported organizer. |
+| `reason` | `string` | Description of the concern. Minimum 10 characters. |
+| `reportDate` | `DateTime` | Timestamp of when the report was submitted. |
+
+## Submitting a report
+
+Any authenticated user with the `User`, `Organizer`, or `Admin` role can submit a report.
+
+```http
+POST /api/reports
+```
+
+```json
+{
+  "reporterId": "reporter-user-id",
+  "organizerId": "organizer-user-id",
+  "reason": "This organizer posted misleading event details and did not show up."
+}
+```
+
+The `reason` field must be at least **10 characters** long.
+
+## How admins handle reports
+
+Administrators have access to the full paginated list of reports.
+
+```http
+GET /api/reports?searchTerm=&page=1
+```
+
+This endpoint is restricted to the `Admin` role. Non-admin users can retrieve a specific report by ID if they have the appropriate role.
+
+```http
+GET /api/reports/{id}
+```
+
+Admins can update a report's reason or delete the record once the matter has been resolved.
+
+```http
+PUT /api/reports/{id}
+```
+
+```json
+{
+  "reason": "Updated reason after further review."
+}
+```
+
+```http
+DELETE /api/reports/{id}
+```
+
+<Info>
+  Only the `Admin` role has access to the full reports list. This keeps reporter identities private from other users.
+</Info>

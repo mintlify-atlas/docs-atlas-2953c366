@@ -1,0 +1,112 @@
+---
+title: "Managing users"
+description: "How to list, create, edit, delete, and block user accounts from the admin panel."
+---
+
+The Users management page is available at `/administration/users-list` and is accessible to Admin accounts. It fetches data from `GET /api/users`, which is publicly accessible but write operations require elevated roles.
+
+## Listing users
+
+The list view shows all registered users in a paginated table with a search bar at the top.
+
+| Column | Description |
+|---|---|
+| Name | User's full name (`FirstName` + `LastName`) |
+| Email | Registered email address |
+| Role | Assigned role: `ADMIN`, `ORGANIZER`, or `USER` |
+| Reports | Number of reports filed against this user |
+| Ratings | Number of ratings this user has received |
+| Status | Whether the account is active or blocked |
+| Details | Link to the full user profile |
+
+Type a name or email in the search field and click **Buscar** to filter results. Pagination controls appear below the table when there are more results than fit on one page.
+
+## Creating a user
+
+Only admins can create user accounts directly via the API. The **Nuevo usuario** button on the list page links to `/administration/users-list/new`.
+
+```http
+POST /api/users
+Authorization: Bearer <admin-token>
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "SecurePass1!",
+  "role": "USER",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "location": "San José, CR"
+}
+```
+
+### User fields
+
+| Field | Required | Constraints |
+|---|---|---|
+| `email` | Yes | Must be a valid email address |
+| `password` | Yes | Minimum 8 characters; must include uppercase, lowercase, digit, and special character (`@$!%*?&`) |
+| `role` | Yes | Must be exactly `ADMIN`, `ORGANIZER`, or `USER` |
+| `firstName` | Yes | Non-empty string |
+| `lastName` | Yes | Non-empty string |
+| `location` | Yes | Non-empty string |
+
+## Editing a user
+
+Admins (and the user themselves) can edit an account via `PUT /api/users/{id}`. The request body uses the same fields as creation.
+
+```http
+PUT /api/users/{id}
+Authorization: Bearer <admin-token>
+Content-Type: application/json
+
+{
+  "email": "updated@example.com",
+  "password": "NewSecurePass1!",
+  "role": "ORGANIZER",
+  "firstName": "Jane",
+  "lastName": "Smith",
+  "location": "Heredia, CR"
+}
+```
+
+## Deleting a user
+
+Admins (and the user themselves) can delete an account via `DELETE /api/users/{id}`.
+
+```http
+DELETE /api/users/{id}
+Authorization: Bearer <admin-token>
+```
+
+<Warning>
+  Deleting a user is permanent. All data associated with the account — events, attendances, comments, ratings, and reports — may be affected depending on cascade rules configured in the database.
+</Warning>
+
+## Blocking and unblocking a user
+
+Blocking toggles the `IsBlocked` flag on an account. A blocked user cannot interact with the platform. This action is exclusive to Admins.
+
+<Steps>
+  <Step title="Open the users list">
+    Navigate to **Administration → Usuarios** (`/administration/users-list`).
+  </Step>
+  <Step title="Locate the target user">
+    Use the search bar to filter by name or email, then find the user in the table.
+  </Step>
+  <Step title="Click the block/unblock action">
+    In the user's row, click the status action button. The label reflects the current state — blocked users show an option to unblock, and active users show an option to block.
+  </Step>
+  <Step title="Confirm the change">
+    The frontend calls `PUT /api/users/block/{id}`. The endpoint toggles `IsBlocked` and returns the updated user record. The table refreshes automatically via `handleBlockedChange`.
+  </Step>
+</Steps>
+
+```http
+PUT /api/users/block/{id}
+Authorization: Bearer <admin-token>
+```
+
+<Note>
+  Calling this endpoint on an already-blocked user unblocks them. It is a toggle — there is no separate unblock endpoint.
+</Note>

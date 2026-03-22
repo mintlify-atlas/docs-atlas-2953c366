@@ -1,0 +1,69 @@
+---
+title: "Dashboard"
+description: "Overview of the admin dashboard and the platform metrics it surfaces."
+---
+
+<Warning>
+  The dashboard is restricted to users with the **Admin** role. Accessing `GET /api/dashboard/info` without an Admin token returns a 403 Forbidden response.
+</Warning>
+
+## Accessing the dashboard
+
+Sign in with an Admin account and navigate to **Administration → Panel de Control** in the sidebar. The frontend fetches `GET /api/dashboard/info` on page load and displays the results.
+
+```http
+GET /api/dashboard/info
+Authorization: Bearer <admin-token>
+```
+
+A successful response returns a `DashboardDto` object containing platform-wide counters and the five most recent records from each section.
+
+## Metric counters
+
+The top row of the dashboard shows four real-time counters drawn from the database.
+
+<CardGroup cols={2}>
+  <Card title="Users" icon="users">
+    Total number of registered user accounts across all roles (User, Organizer, Admin).
+  </Card>
+  <Card title="Events" icon="calendar">
+    Total number of events created on the platform, regardless of publication date or status.
+  </Card>
+  <Card title="Attendances" icon="clipboard-check">
+    Total number of attendance records across all events.
+  </Card>
+  <Card title="Comments" icon="message-square">
+    Total number of comments posted across all events.
+  </Card>
+</CardGroup>
+
+## Recent records panels
+
+Below the counters, the dashboard displays three side-by-side panels showing the five most recent entries in each collection.
+
+| Panel | Sorted by | Fields shown |
+|---|---|---|
+| Latest users | `FirstName` ascending | Full name, email, roles |
+| Latest events | `CreatedDate` descending | Title, description, attendances count, comments count, publication date |
+| Latest categories | `CreatedDate` descending | Name, description, created date |
+
+Only events whose `PublicationDate` is on or before the current date are included in the events panel.
+
+## Reports section
+
+Below the three panels, the dashboard shows a searchable, paginated list of all user reports submitted to the platform. Reports are fetched from `GET /api/reports` and support the same search and pagination controls as the dedicated [Handling reports](/admin-guide/handling-reports) page.
+
+Each report row shows:
+
+- Reporter name
+- Reported user (organizer) name
+- Reason for the report
+- Report date
+
+## Quick navigation
+
+The dashboard provides direct links to the full management pages:
+
+- **Ver todos los Usuarios** → `/administration/users-list`
+- **Ver todos los Eventos** → `/administration/events-list`
+- **Ver todas las Categorías** → `/administration/categories-list`

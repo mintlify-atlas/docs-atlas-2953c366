@@ -1,0 +1,266 @@
+---
+title: "Categories"
+description: "Manage event categories on MeetPoint. Categories group events by topic or theme and can be listed by anyone, but creating, editing, and deleting requires the ADMIN or ORGANIZER role."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/categories` | None (public) |
+| GET | `/api/categories/{id}` | None (public) |
+| POST | `/api/categories` | ADMIN or ORGANIZER |
+| PUT | `/api/categories/{id}` | ADMIN or ORGANIZER |
+| DELETE | `/api/categories/{id}` | ADMIN or ORGANIZER |
+
+---
+
+## GET /api/categories
+
+Returns a paginated list of all categories. Supports optional search filtering.
+
+**Auth:** None required.
+
+### Query Parameters
+
+<ParamField query="searchTerm" type="string">
+  Optional search string to filter categories by name or description. Defaults to an empty string (returns all).
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  List of category objects.
+  <Expandable title="Category object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the category.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the category.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Optional description of the category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/categories?searchTerm=music&page=1"
+```
+
+---
+
+## GET /api/categories/{id}
+
+Returns a single category by its UUID.
+
+**Auth:** None required.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the category.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The category object.
+  <Expandable title="Category object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the category.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Display name of the category.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Optional description of the category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/categories/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+```
+
+---
+
+## POST /api/categories
+
+Creates a new category.
+
+**Auth:** Bearer token required. Roles: **ADMIN** or **ORGANIZER**.
+
+<Warning>
+  This endpoint requires the **ADMIN** or **ORGANIZER** role. Requests from users without these roles will receive a `403 Forbidden` response.
+</Warning>
+
+### Request Body
+
+<ParamField body="name" type="string" required>
+  The name of the category. Cannot be empty.
+</ParamField>
+
+<ParamField body="description" type="string">
+  An optional description for the category. Must be at least 10 characters if provided.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The newly created category object.
+  <Expandable title="Category object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier assigned to the new category.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Name of the created category.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Description of the created category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/categories" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Music",
+    "description": "Events related to music and concerts"
+  }'
+```
+
+---
+
+## PUT /api/categories/{id}
+
+Updates an existing category.
+
+**Auth:** Bearer token required. Roles: **ADMIN** or **ORGANIZER**.
+
+<Warning>
+  This endpoint requires the **ADMIN** or **ORGANIZER** role.
+</Warning>
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the category to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="name" type="string" required>
+  The updated name of the category.
+</ParamField>
+
+<ParamField body="description" type="string">
+  The updated description. Must be at least 10 characters if provided.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The updated category object.
+  <Expandable title="Category object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the category.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Updated name of the category.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Updated description of the category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X PUT "https://api.meetpoint.com/api/categories/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Live Music",
+    "description": "Events featuring live music performances"
+  }'
+```
+
+---
+
+## DELETE /api/categories/{id}
+
+Deletes a category by its UUID.
+
+**Auth:** Bearer token required. Roles: **ADMIN** or **ORGANIZER**.
+
+<Warning>
+  This endpoint requires the **ADMIN** or **ORGANIZER** role. Deleted categories cannot be recovered.
+</Warning>
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the category to delete.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The deleted category object.
+  <Expandable title="Category object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the deleted category.
+    </ResponseField>
+    <ResponseField name="name" type="string">
+      Name of the deleted category.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Description of the deleted category.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X DELETE "https://api.meetpoint.com/api/categories/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```

@@ -1,0 +1,123 @@
+---
+title: 'Get event'
+description: 'Retrieve a single event by its unique identifier.'
+---
+
+## GET /api/events/{id}
+
+Returns the full details of a single event. This endpoint is publicly accessible and does not require authentication.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The GUID of the event to retrieve.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      Unique identifier (GUID) for the event.
+    </ResponseField>
+    <ResponseField name="categoryId" type="string">
+      GUID of the associated category.
+    </ResponseField>
+    <ResponseField name="categoryName" type="string">
+      Display name of the associated category.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the user who organized the event.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Full name of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerRating" type="number">
+      Average rating of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerRatingsCount" type="number">
+      Total number of ratings the organizer has received.
+    </ResponseField>
+    <ResponseField name="title" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="description" type="string">
+      Full description of the event.
+    </ResponseField>
+    <ResponseField name="ubication" type="string">
+      Physical location or address of the event.
+    </ResponseField>
+    <ResponseField name="date" type="string">
+      Date and time of the event (ISO 8601).
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string">
+      Date and time the event was published (ISO 8601).
+    </ResponseField>
+    <ResponseField name="attendancesCount" type="number">
+      Total number of attendees.
+    </ResponseField>
+    <ResponseField name="commentsCount" type="number">
+      Total number of comments.
+    </ResponseField>
+    <ResponseField name="attendances" type="object[]">
+      List of attendance records for the event.
+    </ResponseField>
+    <ResponseField name="comments" type="object[]">
+      List of comments on the event.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.meetpoint.com/api/events/a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Evento obtenido correctamente",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "categoryId": "c1d2e3f4-0000-1111-2222-333344445555",
+    "categoryName": "Music",
+    "organizerId": "user-abc123",
+    "organizerName": "Jane Doe",
+    "organizerRating": 4.7,
+    "organizerRatingsCount": 15,
+    "title": "Summer Music Festival",
+    "description": "An outdoor music festival featuring local artists.",
+    "ubication": "Central Park, New York",
+    "date": "2026-07-20T18:00:00Z",
+    "publicationDate": "2026-03-01T10:00:00Z",
+    "attendancesCount": 120,
+    "commentsCount": 34,
+    "attendances": [],
+    "comments": []
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Evento no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

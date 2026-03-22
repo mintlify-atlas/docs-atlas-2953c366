@@ -1,0 +1,308 @@
+---
+title: "Reports"
+description: "Manage user reports on MeetPoint. Authenticated users can file a report against an organizer. Admins can view the full list of reports and manage individual records."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/reports` | ADMIN only |
+| GET | `/api/reports/{id}` | USER, ADMIN, or ORGANIZER |
+| POST | `/api/reports` | USER, ADMIN, or ORGANIZER |
+| PUT | `/api/reports/{id}` | USER, ADMIN, or ORGANIZER |
+| DELETE | `/api/reports/{id}` | USER, ADMIN, or ORGANIZER |
+
+---
+
+## GET /api/reports
+
+Returns a paginated list of all reports on the platform.
+
+**Auth:** Bearer token required. Role: **ADMIN** only.
+
+<Warning>
+  This endpoint is restricted to the **ADMIN** role. All other authenticated users will receive `403 Forbidden`.
+</Warning>
+
+### Query Parameters
+
+<ParamField query="searchTerm" type="string">
+  Optional search string to filter reports. Defaults to an empty string.
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  List of report objects.
+  <Expandable title="Report object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the report.
+    </ResponseField>
+    <ResponseField name="reporterId" type="string">
+      ID of the user who filed the report.
+    </ResponseField>
+    <ResponseField name="reporterName" type="string">
+      Display name of the reporter.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the organizer being reported.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the reported organizer.
+    </ResponseField>
+    <ResponseField name="reason" type="string">
+      The reason for the report.
+    </ResponseField>
+    <ResponseField name="reportDate" type="string (ISO 8601)">
+      Timestamp when the report was filed.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/reports?page=1" \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+---
+
+## GET /api/reports/{id}
+
+Returns a single report by its UUID.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the report.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The report object.
+  <Expandable title="Report object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the report.
+    </ResponseField>
+    <ResponseField name="reporterId" type="string">
+      ID of the reporter.
+    </ResponseField>
+    <ResponseField name="reporterName" type="string">
+      Display name of the reporter.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the reported organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the reported organizer.
+    </ResponseField>
+    <ResponseField name="reason" type="string">
+      The stated reason for the report.
+    </ResponseField>
+    <ResponseField name="reportDate" type="string (ISO 8601)">
+      Timestamp when the report was filed.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/reports/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## POST /api/reports
+
+Files a new report against an organizer.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Request Body
+
+<ParamField body="reporterId" type="string">
+  The ID of the user filing the report. Typically resolved from the authenticated token.
+</ParamField>
+
+<ParamField body="organizerId" type="string" required>
+  The ID of the organizer being reported.
+</ParamField>
+
+<ParamField body="reason" type="string" required>
+  The reason for the report. Must be at least 10 characters.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The newly created report object.
+  <Expandable title="Report object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the new report.
+    </ResponseField>
+    <ResponseField name="reporterId" type="string">
+      ID of the reporter.
+    </ResponseField>
+    <ResponseField name="reporterName" type="string">
+      Display name of the reporter.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the reported organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the reported organizer.
+    </ResponseField>
+    <ResponseField name="reason" type="string">
+      Recorded reason for the report.
+    </ResponseField>
+    <ResponseField name="reportDate" type="string (ISO 8601)">
+      Timestamp when the report was filed.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/reports" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reporterId": "user-id-string",
+    "organizerId": "organizer-id-string",
+    "reason": "This organizer repeatedly posts misleading event information."
+  }'
+```
+
+---
+
+## PUT /api/reports/{id}
+
+Updates the reason for an existing report.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the report to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="reason" type="string" required>
+  The updated reason for the report. Must be at least 10 characters.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The updated report object.
+  <Expandable title="Report object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the report.
+    </ResponseField>
+    <ResponseField name="reporterId" type="string">
+      ID of the reporter.
+    </ResponseField>
+    <ResponseField name="reporterName" type="string">
+      Display name of the reporter.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the reported organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the reported organizer.
+    </ResponseField>
+    <ResponseField name="reason" type="string">
+      Updated reason for the report.
+    </ResponseField>
+    <ResponseField name="reportDate" type="string (ISO 8601)">
+      Original report timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X PUT "https://api.meetpoint.com/api/reports/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "reason": "Organizer cancelled the event without any notice or refund."
+  }'
+```
+
+---
+
+## DELETE /api/reports/{id}
+
+Deletes a report.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the report to delete.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The deleted report object.
+  <Expandable title="Report object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the deleted report.
+    </ResponseField>
+    <ResponseField name="reporterId" type="string">
+      ID of the reporter.
+    </ResponseField>
+    <ResponseField name="reporterName" type="string">
+      Display name of the reporter.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the reported organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the reported organizer.
+    </ResponseField>
+    <ResponseField name="reason" type="string">
+      Reason of the deleted report.
+    </ResponseField>
+    <ResponseField name="reportDate" type="string (ISO 8601)">
+      Timestamp of the original report.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X DELETE "https://api.meetpoint.com/api/reports/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```

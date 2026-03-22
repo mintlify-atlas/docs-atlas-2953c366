@@ -1,0 +1,72 @@
+---
+title: "Managing categories"
+description: "How to list, create, edit, and delete event categories from the admin panel."
+---
+
+Categories organize events on the platform. The Categories management page is available at `/administration/categories-list`. Both Admins and Organizers have write access to categories.
+
+## Listing categories
+
+The list view shows all categories in a paginated table with a search bar.
+
+| Column | Description |
+|---|---|
+| Name | Category name |
+| Description | Short description of the category |
+| Actions | Edit and delete controls |
+
+Type a keyword in the search bar and click **Buscar** to filter by name. Use the pagination controls below the table to move between pages.
+
+```http
+GET /api/categories?searchTerm=music&page=1
+```
+
+## Creating a category
+
+Click **Nueva categoría** on the categories list page to open the creation form at `/administration/categories-list/new`.
+
+```http
+POST /api/categories
+Authorization: Bearer <admin-or-organizer-token>
+Content-Type: application/json
+
+{
+  "name": "Music",
+  "description": "Events related to live music, concerts, and festivals."
+}
+```
+
+### Category fields
+
+| Field | Required | Constraints |
+|---|---|---|
+| `name` | Yes | Non-empty string |
+| `description` | No | Minimum 10 characters if provided |
+
+## Editing a category
+
+Click the edit action in a category row to update its name or description. The request body uses the same fields as creation.
+
+```http
+PUT /api/categories/{id}
+Authorization: Bearer <admin-or-organizer-token>
+Content-Type: application/json
+
+{
+  "name": "Live Music",
+  "description": "Events featuring live performances and concerts."
+}
+```
+
+## Deleting a category
+
+Click the delete action in a category row to remove it permanently.
+
+```http
+DELETE /api/categories/{id}
+Authorization: Bearer <admin-or-organizer-token>
+```
+
+<Warning>
+  Deleting a category does not automatically reassign or delete the events that belong to it. Events that referenced the deleted category will lose their category association. Review which events are assigned to a category before deleting it to avoid leaving orphaned events without a category.
+</Warning>

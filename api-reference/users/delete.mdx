@@ -1,0 +1,73 @@
+---
+title: 'Delete user'
+description: 'Delete a user account by ID. Requires ADMIN or USER role.'
+---
+
+## DELETE /api/users/{id}
+
+Permanently deletes a user account.
+
+<Warning>
+  This action is irreversible. All data associated with the user will be removed.
+</Warning>
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `ADMIN`, `USER`.
+</Info>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The string ID of the user to delete.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The deleted user object.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request DELETE \
+  --url 'https://api.meetpoint.com/api/users/user-abc123' \
+  --header 'Authorization: Bearer <token>'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Usuario eliminado correctamente",
+  "data": {
+    "id": "user-abc123",
+    "email": "jane.doe@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "New York, USA",
+    "isBlocked": false
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Usuario no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

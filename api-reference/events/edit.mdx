@@ -1,0 +1,109 @@
+---
+title: 'Edit event'
+description: 'Update an existing event by ID. Requires authentication as a USER, ADMIN, or ORGANIZER.'
+---
+
+## PUT /api/events/{id}
+
+Updates the details of an existing event.
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `USER`, `ADMIN`, `ORGANIZER`.
+</Info>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The GUID of the event to update.
+</ParamField>
+
+## Request body
+
+<ParamField path="categoryId" type="string" required>
+  GUID of the category this event belongs to.
+</ParamField>
+
+<ParamField path="title" type="string" required>
+  Updated title of the event.
+</ParamField>
+
+<ParamField path="description" type="string" required>
+  Updated description of the event.
+</ParamField>
+
+<ParamField path="ubication" type="string" required>
+  Updated physical location or address of the event.
+</ParamField>
+
+<ParamField path="date" type="string" required>
+  Updated date and time of the event (ISO 8601 format).
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The updated event object. See [Get event](/api-reference/events/get-by-id) for the full field list.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request PUT \
+  --url 'https://api.meetpoint.com/api/events/a1b2c3d4-e5f6-7890-abcd-ef1234567890' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "categoryId": "c1d2e3f4-0000-1111-2222-333344445555",
+    "title": "Summer Music Festival 2026",
+    "description": "An outdoor music festival featuring local and international artists.",
+    "ubication": "Central Park, New York",
+    "date": "2026-07-25T18:00:00Z"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Evento editado correctamente",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "categoryId": "c1d2e3f4-0000-1111-2222-333344445555",
+    "categoryName": "Music",
+    "organizerId": "user-abc123",
+    "organizerName": "Jane Doe",
+    "organizerRating": 4.7,
+    "organizerRatingsCount": 15,
+    "title": "Summer Music Festival 2026",
+    "description": "An outdoor music festival featuring local and international artists.",
+    "ubication": "Central Park, New York",
+    "date": "2026-07-25T18:00:00Z",
+    "publicationDate": "2026-03-22T09:15:00Z",
+    "attendancesCount": 120,
+    "commentsCount": 34,
+    "attendances": [],
+    "comments": []
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Evento no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

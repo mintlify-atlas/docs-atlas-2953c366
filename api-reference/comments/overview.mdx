@@ -1,0 +1,365 @@
+---
+title: "Comments"
+description: "Manage comments on MeetPoint events. Users can post top-level comments and reply to existing comments using a parent reference. Listing and reading comments is public; writing requires an authenticated user."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/comments` | None (public) |
+| GET | `/api/comments/{id}` | None (public) |
+| POST | `/api/comments` | USER, ADMIN, or ORGANIZER |
+| PUT | `/api/comments/{id}` | USER, ADMIN, or ORGANIZER |
+| DELETE | `/api/comments/{id}` | USER, ADMIN, or ORGANIZER |
+
+---
+
+## GET /api/comments
+
+Returns a paginated list of all comments, including their nested replies.
+
+**Auth:** None required.
+
+### Query Parameters
+
+<ParamField query="searchTerm" type="string">
+  Optional search string to filter comments by content. Defaults to an empty string (returns all).
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  List of comment objects.
+  <Expandable title="Comment object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the comment.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user who authored the comment.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the author.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the author. See [Memberships](/api-reference/memberships/overview) for the object shape.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event the comment belongs to.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Text content of the comment.
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string (ISO 8601)">
+      Timestamp when the comment was published.
+    </ResponseField>
+    <ResponseField name="parentId" type="string (UUID) | null">
+      ID of the parent comment if this is a reply, otherwise `null`.
+    </ResponseField>
+    <ResponseField name="replies" type="array">
+      Nested list of reply comment objects with the same shape.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/comments?page=1"
+```
+
+---
+
+## GET /api/comments/{id}
+
+Returns a single comment by its UUID, including its replies.
+
+**Auth:** None required.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the comment.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The comment object.
+  <Expandable title="Comment object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the comment.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the comment author.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the author.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the author.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the associated event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the associated event.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Text content of the comment.
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string (ISO 8601)">
+      Timestamp when the comment was published.
+    </ResponseField>
+    <ResponseField name="parentId" type="string (UUID) | null">
+      ID of the parent comment if this is a reply, otherwise `null`.
+    </ResponseField>
+    <ResponseField name="replies" type="array">
+      List of nested reply objects with the same shape.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/comments/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+```
+
+---
+
+## POST /api/comments
+
+Creates a new comment on an event. To post a reply, set `parentId` to the UUID of the comment being replied to.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Request Body
+
+<ParamField body="userId" type="string">
+  The ID of the user posting the comment. Typically resolved from the authenticated token.
+</ParamField>
+
+<ParamField body="eventId" type="string (UUID)" required>
+  The ID of the event to comment on.
+</ParamField>
+
+<ParamField body="content" type="string" required>
+  The text content of the comment. Cannot be empty.
+</ParamField>
+
+<ParamField body="parentId" type="string (UUID)">
+  Optional. The ID of an existing comment to reply to. Omit or set to `null` for a top-level comment.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The newly created comment object.
+  <Expandable title="Comment object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the new comment.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the author.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the author.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the author.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Text content of the comment.
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string (ISO 8601)">
+      Timestamp of publication.
+    </ResponseField>
+    <ResponseField name="parentId" type="string (UUID) | null">
+      Parent comment ID if this is a reply, otherwise `null`.
+    </ResponseField>
+    <ResponseField name="replies" type="array">
+      Empty array for a new comment.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example — top-level comment
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/comments" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user-id-string",
+    "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "content": "Looking forward to this event!"
+  }'
+```
+
+### Example — reply to an existing comment
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/comments" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user-id-string",
+    "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "content": "Me too!",
+    "parentId": "a1b2c3d4-1234-5678-abcd-ef1234567890"
+  }'
+```
+
+---
+
+## PUT /api/comments/{id}
+
+Updates the content of an existing comment.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the comment to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="content" type="string" required>
+  The updated text content of the comment.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The updated comment object.
+  <Expandable title="Comment object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the comment.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the author.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the author.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the author.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Updated text content.
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string (ISO 8601)">
+      Original publication timestamp.
+    </ResponseField>
+    <ResponseField name="parentId" type="string (UUID) | null">
+      Parent comment ID if a reply, otherwise `null`.
+    </ResponseField>
+    <ResponseField name="replies" type="array">
+      Nested replies of the comment.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X PUT "https://api.meetpoint.com/api/comments/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "content": "Updated: I cannot make it after all."
+  }'
+```
+
+---
+
+## DELETE /api/comments/{id}
+
+Deletes a comment and its replies.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the comment to delete.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The deleted comment object.
+  <Expandable title="Comment object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the deleted comment.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the author.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the author.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the author.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="content" type="string">
+      Text content of the deleted comment.
+    </ResponseField>
+    <ResponseField name="publicationDate" type="string (ISO 8601)">
+      Original publication timestamp.
+    </ResponseField>
+    <ResponseField name="parentId" type="string (UUID) | null">
+      Parent comment ID if a reply, otherwise `null`.
+    </ResponseField>
+    <ResponseField name="replies" type="array">
+      Nested replies that were also deleted.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X DELETE "https://api.meetpoint.com/api/comments/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```

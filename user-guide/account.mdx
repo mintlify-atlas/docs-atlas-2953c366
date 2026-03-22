@@ -1,0 +1,151 @@
+---
+title: 'Account'
+description: 'How to register, log in, edit your profile, and manage your MeetPoint account.'
+keywords: ['account', 'register', 'login', 'profile', 'password', 'delete account', 'membership']
+---
+
+## Registration
+
+New accounts are created at `/security/register`. The form submits to `POST /api/auth/register` and requires all fields listed below.
+
+<Steps>
+  <Step title="Open the registration page">
+    Navigate to `/security/register` or click **Registrarse** from the login page. The registration form is publicly accessible.
+  </Step>
+  <Step title="Fill in your details">
+    Complete all required fields:
+
+    | Field | Description | Validation |
+    |---|---|---|
+    | First name (`firstName`) | Your given name | Required |
+    | Last name (`lastName`) | Your family name | Required |
+    | Location (`location`) | Your city or region | Required |
+    | Email (`email`) | A valid email address | Required, must be a valid email format |
+    | Password (`password`) | Account password | Required, minimum 8 characters, must include uppercase, lowercase, a digit, and a special character (`@$!%*?&`) |
+    | Confirm password (`confirmPassword`) | Repeat the password | Must match `password` |
+  </Step>
+  <Step title="Submit the form">
+    Click **Ingresar**. On success, the API returns a JWT token and refresh token. The app stores these and signs you in automatically.
+  </Step>
+  <Step title="You are now logged in">
+    You are redirected to the events listing. Your name and avatar appear in the sidebar.
+  </Step>
+</Steps>
+
+<Info>
+  Newly registered users receive the `USER` role. The `ORGANIZER` role is granted via a membership upgrade.
+</Info>
+
+### API reference
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "firstName": "Ana",
+  "lastName": "García",
+  "location": "Madrid",
+  "email": "ana@example.com",
+  "password": "SecurePass1!",
+  "confirmPassword": "SecurePass1!"
+}
+```
+
+A successful response returns:
+
+```json
+{
+  "fullName": "Ana García",
+  "email": "ana@example.com",
+  "token": "<jwt>",
+  "tokenExpiration": "2026-03-23T12:00:00Z",
+  "refreshToken": "<refresh-token>",
+  "refreshTokenExpire": "2026-04-22T12:00:00Z"
+}
+```
+
+---
+
+## Logging in
+
+The login form is at `/security/login` and posts to `POST /api/auth/login`.
+
+<Steps>
+  <Step title="Navigate to the login page">
+    Click **Iniciar Sesión** in the top navigation bar, or visit `/security/login` directly.
+  </Step>
+  <Step title="Enter your credentials">
+    Enter your registered email address and password.
+  </Step>
+  <Step title="Submit">
+    Click **Ingresar**. On success, the app stores your JWT token and redirects you to the events page. On failure, an error message is displayed below the form.
+  </Step>
+</Steps>
+
+### API reference
+
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "ana@example.com",
+  "password": "SecurePass1!"
+}
+```
+
+---
+
+## Editing your profile
+
+Your profile is editable at `/user/edit/{id}`, reached by clicking **Editar Cuenta** on the profile page (`/user`). Changes are submitted to `PUT /api/users/{id}`.
+
+<Note>
+  You must be logged in to edit your profile. The `PUT /api/users/{id}` endpoint requires the `USER` or `ADMIN` role.
+</Note>
+
+The edit form pre-fills all current values from your account. Change any of the following fields and click **Actualizar Perfil** to save:
+
+| Field | Form label | Notes |
+|---|---|---|
+| `firstName` | Primer Nombre | Required |
+| `lastName` | Segundo Nombre | Required |
+| `location` | Locación | Required |
+| `email` | Correo Electrónico | Required, must be a valid email |
+| `password` | Nueva Contraseña | Leave the current password if you do not want to change it |
+| `confirmPassword` | Confirmar Contraseña | Must match `password` |
+
+On success, a confirmation dialog appears and you are redirected back to `/user`.
+
+---
+
+## Deleting your account
+
+Account deletion is available on the profile page (`/user`) by clicking **Eliminar Cuenta**. This calls `DELETE /api/users/{id}`.
+
+<Warning>
+  Deleting your account is permanent. All your organized events, attendances, comments, and ratings are removed. This action cannot be undone.
+</Warning>
+
+The UI shows a confirmation dialog before proceeding:
+
+- Click **Sí, eliminar** to confirm deletion. The app calls the delete endpoint, logs you out, and redirects to `/home`.
+- Click **No, cancelar** to abort.
+
+---
+
+## Membership upgrade
+
+The sidebar displays a **¡Adquiere tu membresía!** panel for users without an active membership. Premium members are identified by a gold badge next to their name throughout the app.
+
+<CardGroup cols={2}>
+  <Card title="Monthly plan" icon="calendar" href="/features/memberships">
+    $2.99/month. Paid via PayPal. Grants the Organizer role to create and manage events.
+  </Card>
+  <Card title="Annual plan" icon="star" href="/features/memberships">
+    $29.99/year. Paid via PayPal. Same benefits as the monthly plan at a reduced rate.
+  </Card>
+</CardGroup>
+
+For full details on purchasing a membership, see the [Memberships](/features/memberships) page.

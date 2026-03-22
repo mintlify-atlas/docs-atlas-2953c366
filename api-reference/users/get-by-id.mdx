@@ -1,0 +1,139 @@
+---
+title: 'Get user'
+description: 'Retrieve a single user by their unique identifier.'
+---
+
+## GET /api/users/{id}
+
+Returns the full profile of a single user. This endpoint is publicly accessible and does not require authentication.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The string ID of the user to retrieve.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">
+      Unique string identifier for the user.
+    </ResponseField>
+    <ResponseField name="roles" type="string[]">
+      List of roles assigned to the user (e.g., `USER`, `ADMIN`, `ORGANIZER`).
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      Email address of the user.
+    </ResponseField>
+    <ResponseField name="firstName" type="string">
+      First name of the user.
+    </ResponseField>
+    <ResponseField name="lastName" type="string">
+      Last name of the user.
+    </ResponseField>
+    <ResponseField name="location" type="string">
+      Geographic location of the user.
+    </ResponseField>
+    <ResponseField name="isBlocked" type="boolean">
+      Whether the user is currently blocked.
+    </ResponseField>
+    <ResponseField name="membership" type="object">
+      Membership details for the user, if applicable.
+    </ResponseField>
+    <ResponseField name="eventsCount" type="number">
+      Number of events organized by the user.
+    </ResponseField>
+    <ResponseField name="attendancesCount" type="number">
+      Number of events the user has attended.
+    </ResponseField>
+    <ResponseField name="reportsCount" type="number">
+      Number of reports filed against the user.
+    </ResponseField>
+    <ResponseField name="ratingsCount" type="number">
+      Number of ratings the user has received.
+    </ResponseField>
+    <ResponseField name="averageRating" type="number">
+      Average rating score for the user.
+    </ResponseField>
+    <ResponseField name="organizedEvents" type="object[]">
+      List of events organized by this user.
+    </ResponseField>
+    <ResponseField name="attendances" type="object[]">
+      List of events the user has attended.
+    </ResponseField>
+    <ResponseField name="comments" type="object[]">
+      List of comments made by the user.
+    </ResponseField>
+    <ResponseField name="madeReports" type="object[]">
+      List of reports submitted by the user.
+    </ResponseField>
+    <ResponseField name="reports" type="object[]">
+      List of reports filed against the user.
+    </ResponseField>
+    <ResponseField name="madeRatings" type="object[]">
+      List of ratings given by the user.
+    </ResponseField>
+    <ResponseField name="ratings" type="object[]">
+      List of ratings received by the user.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.meetpoint.com/api/users/user-abc123'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Usuario obtenido correctamente",
+  "data": {
+    "id": "user-abc123",
+    "roles": ["ORGANIZER"],
+    "email": "jane.doe@example.com",
+    "firstName": "Jane",
+    "lastName": "Doe",
+    "location": "New York, USA",
+    "isBlocked": false,
+    "membership": null,
+    "eventsCount": 5,
+    "attendancesCount": 12,
+    "reportsCount": 0,
+    "ratingsCount": 15,
+    "averageRating": 4.7,
+    "organizedEvents": [],
+    "attendances": [],
+    "comments": [],
+    "madeReports": [],
+    "reports": [],
+    "madeRatings": [],
+    "ratings": []
+  }
+}
+```
+
+```json 404
+{
+  "status": false,
+  "message": "Usuario no encontrado",
+  "data": null
+}
+```
+
+</ResponseExample>

@@ -1,0 +1,126 @@
+---
+title: 'Attending events'
+description: 'How to browse, register attendance, comment, and rate events on MeetPoint.'
+keywords: ['attend event', 'register attendance', 'cancel attendance', 'comment', 'rating', 'stars', 'browse events']
+---
+
+## Browsing events
+
+The events listing is at `/main`. It displays all published events in a paginated grid. Events show their title, date, category, status (upcoming or finished), and — for logged-in users — the organizer's name and the event location.
+
+### Searching
+
+A search bar at the top of the listing accepts a free-text `searchTerm`. Type a query and click **Buscar** (or press Enter) to filter results. The search term is passed to `GET /api/events?searchTerm={term}&page={page}`.
+
+### Filtering by category
+
+The sidebar lists all available categories. Clicking a category name sets the search term to that category's name and reloads the event list to show only matching events.
+
+### Pagination
+
+Results are paginated. Use the pagination controls below the event grid to navigate between pages. The controls include:
+
+- Previous page button (disabled when on the first page)
+- Page number buttons
+- Next page button (disabled when on the last page)
+
+<Note>
+  Browsing events and viewing event details are publicly accessible — no account is required. However, the attendee list, comments, the organizer's name, and the event location are only visible to logged-in users.
+</Note>
+
+---
+
+## Registering attendance
+
+<Steps>
+  <Step title="Open the event page">
+    Click any event card in the listing to navigate to `/main/event/{id}`.
+  </Step>
+  <Step title="Log in if prompted">
+    The attendee section shows a **Iniciar sesión para visualizar la lista de asistentes** link if you are not authenticated. Click it to log in and return.
+  </Step>
+  <Step title="Confirm your attendance">
+    If the event has not yet taken place and you have not already registered, a **Confirmar Asistencia** button appears below the attendee list. Click it to register with the state `CONFIRMADO`.
+  </Step>
+  <Step title="Your name appears in the attendee list">
+    Your user card appears in the attendee grid with a green **CONFIRMADO** badge. A **Mi asistencia** label marks your own entry.
+  </Step>
+</Steps>
+
+### Changing your attendance state
+
+While the event is still upcoming, three buttons let you update your attendance state:
+
+| Button | State set |
+|---|---|
+| Pendiente | `PENDIENTE` (yellow badge) |
+| Confirmado | `CONFIRMADO` (green badge) |
+| Cancelado | `CANCELADO` (red badge) |
+
+---
+
+## Cancelling attendance
+
+If you registered for an event and the event has not yet taken place, a **Eliminar Asistencia** button is shown alongside the state-change buttons. Clicking it removes your attendance record entirely and your card is removed from the attendee list.
+
+<Note>
+  Attendance management (state changes and removal) is only available before the event's scheduled date. Once the event date has passed, the attendance controls are hidden.
+</Note>
+
+---
+
+## Leaving a comment
+
+The comments section appears below the attendee list on every event page. You must be logged in to read or post comments.
+
+<Steps>
+  <Step title="Scroll to the comments section">
+    The **Lista de Comentarios** panel is at the bottom of the event page.
+  </Step>
+  <Step title="Write your comment">
+    Type your message in the textarea labelled **Escribe un comentario...**.
+  </Step>
+  <Step title="Submit">
+    Click **Enviar**. Your comment appears at the top of the list with your name, avatar, and the publication date.
+  </Step>
+  <Step title="Reply to a comment (optional)">
+    Click **Responder** under any top-level comment to open a reply textarea. Type your reply and click **Responder** to post it. The reply is nested under the original comment.
+  </Step>
+</Steps>
+
+### Editing and deleting your comments
+
+Your own comments show an edit button (green pencil) and a delete button (red bin).
+
+- **Edit**: Click the pencil icon to switch the comment text to an editable textarea. Click **Guardar** to save changes or **Cancelar** to discard them.
+- **Delete**: Click the bin icon. A confirmation dialog appears. Click **Sí, eliminar** to permanently remove the comment.
+
+---
+
+## Rating an event
+
+After attending an event you can rate the organizer on a 1–5 star scale. The rating section appears automatically once all three conditions are met:
+
+1. The event's date has passed.
+2. You have a confirmed or registered attendance for the event.
+3. You are not the organizer of the event.
+4. You have not already submitted a rating for this event.
+
+<Steps>
+  <Step title="Scroll to the rating section">
+    After the event ends, a **¿Qué calificación le das a este evento?** heading appears below the attendee list.
+  </Step>
+  <Step title="Select your star rating">
+    Use the star rating input to choose a score between 1 and 5.
+  </Step>
+  <Step title="Submit your rating">
+    Click the submit button in the star rating control. The rating is sent to `POST /api/ratings` with the event ID, organizer ID, and score.
+  </Step>
+  <Step title="Confirmation">
+    A success dialog appears confirming your rating. The rating section is replaced with a thank-you message: **¡Gracias por tu calificación, esperamos que asistas al próximo evento!**
+  </Step>
+</Steps>
+
+<Tip>
+  Ratings are applied to the event organizer's profile. The organizer's average rating and total rating count are displayed on event pages and on their public profile.
+</Tip>

@@ -1,0 +1,302 @@
+---
+title: "Attendances"
+description: "Manage event attendances on MeetPoint. Users can register, update, and cancel their attendance at events. Listing attendances is public; creating, editing, and deleting requires an authenticated user."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/attendances` | None (public) |
+| GET | `/api/attendances/{id}` | None (public) |
+| POST | `/api/attendances` | USER, ADMIN, or ORGANIZER |
+| PUT | `/api/attendances/{id}` | USER, ADMIN, or ORGANIZER |
+| DELETE | `/api/attendances/{id}` | USER, ADMIN, or ORGANIZER |
+
+---
+
+## GET /api/attendances
+
+Returns a paginated list of all attendances. Supports optional search filtering.
+
+**Auth:** None required.
+
+### Query Parameters
+
+<ParamField query="searchTerm" type="string">
+  Optional search string to filter attendances. Defaults to an empty string (returns all).
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  List of attendance objects.
+  <Expandable title="Attendance object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the attendance record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user who registered the attendance.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the user.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership information for the user. See [Memberships](/api-reference/memberships/overview) for the membership object shape.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event the attendance belongs to.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      Attendance state. One of: `CONFIRMADO`, `PENDIENTE`, `CANCELADO`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/attendances?page=1"
+```
+
+---
+
+## GET /api/attendances/{id}
+
+Returns a single attendance record by its UUID.
+
+**Auth:** None required.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the attendance record.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The attendance object.
+  <Expandable title="Attendance object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the attendance record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the attending user.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the attending user.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the user.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      Attendance state: `CONFIRMADO`, `PENDIENTE`, or `CANCELADO`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/attendances/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+```
+
+---
+
+## POST /api/attendances
+
+Registers a new attendance for a user at an event.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Request Body
+
+<ParamField body="userId" type="string">
+  The ID of the user registering attendance. Typically resolved from the authenticated token.
+</ParamField>
+
+<ParamField body="eventId" type="string (UUID)" required>
+  The ID of the event to attend.
+</ParamField>
+
+<ParamField body="state" type="string" required>
+  The attendance state. Must be one of: `CONFIRMADO`, `PENDIENTE`, `CANCELADO`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The newly created attendance object.
+  <Expandable title="Attendance object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the new attendance record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the user.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the user.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      Recorded attendance state.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/attendances" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user-id-string",
+    "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "state": "CONFIRMADO"
+  }'
+```
+
+---
+
+## PUT /api/attendances/{id}
+
+Updates the state of an existing attendance record.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the attendance record to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="state" type="string" required>
+  The new attendance state. Must be one of: `CONFIRMADO`, `PENDIENTE`, `CANCELADO`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The updated attendance object.
+  <Expandable title="Attendance object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the attendance record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the user.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the user.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      Updated attendance state.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X PUT "https://api.meetpoint.com/api/attendances/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "state": "CANCELADO"
+  }'
+```
+
+---
+
+## DELETE /api/attendances/{id}
+
+Deletes an attendance record.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the attendance record to delete.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The deleted attendance object.
+  <Expandable title="Attendance object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the deleted record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the user.
+    </ResponseField>
+    <ResponseField name="userMembership" type="object">
+      Membership details for the user.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="state" type="string">
+      State of the deleted attendance record.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X DELETE "https://api.meetpoint.com/api/attendances/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```

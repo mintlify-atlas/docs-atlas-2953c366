@@ -1,0 +1,147 @@
+---
+title: 'List users'
+description: 'Retrieve a paginated list of users, with optional search filtering.'
+---
+
+## GET /api/users
+
+Returns a paginated list of all users. This endpoint is publicly accessible and does not require authentication.
+
+<Note>
+  Results are paginated with a page size of 8 items. Use the `page` parameter to navigate between pages.
+</Note>
+
+## Query parameters
+
+<ParamField query="searchTerm" type="string">
+  Filter users by name or email. Returns all users when omitted.
+</ParamField>
+
+<ParamField query="page" type="number" default="1">
+  Page number to retrieve. Starts at 1.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  <Expandable title="properties">
+    <ResponseField name="hasNextPage" type="boolean">
+      Whether a next page of results exists.
+    </ResponseField>
+    <ResponseField name="hasPreviousPage" type="boolean">
+      Whether a previous page of results exists.
+    </ResponseField>
+    <ResponseField name="currentPage" type="number">
+      The current page number.
+    </ResponseField>
+    <ResponseField name="pageSize" type="number">
+      Number of items per page (8).
+    </ResponseField>
+    <ResponseField name="totalItems" type="number">
+      Total number of users matching the query.
+    </ResponseField>
+    <ResponseField name="totalPages" type="number">
+      Total number of pages.
+    </ResponseField>
+    <ResponseField name="items" type="object[]">
+      <Expandable title="user properties">
+        <ResponseField name="id" type="string">
+          Unique string identifier for the user.
+        </ResponseField>
+        <ResponseField name="roles" type="string[]">
+          List of roles assigned to the user (e.g., `USER`, `ADMIN`, `ORGANIZER`).
+        </ResponseField>
+        <ResponseField name="email" type="string">
+          Email address of the user.
+        </ResponseField>
+        <ResponseField name="firstName" type="string">
+          First name of the user.
+        </ResponseField>
+        <ResponseField name="lastName" type="string">
+          Last name of the user.
+        </ResponseField>
+        <ResponseField name="location" type="string">
+          Geographic location of the user.
+        </ResponseField>
+        <ResponseField name="isBlocked" type="boolean">
+          Whether the user is currently blocked.
+        </ResponseField>
+        <ResponseField name="eventsCount" type="number">
+          Number of events organized by the user.
+        </ResponseField>
+        <ResponseField name="attendancesCount" type="number">
+          Number of events the user has attended.
+        </ResponseField>
+        <ResponseField name="reportsCount" type="number">
+          Number of reports filed against the user.
+        </ResponseField>
+        <ResponseField name="ratingsCount" type="number">
+          Number of ratings the user has received.
+        </ResponseField>
+        <ResponseField name="averageRating" type="number">
+          Average rating score for the user.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request GET \
+  --url 'https://api.meetpoint.com/api/users?searchTerm=jane&page=1'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Usuarios obtenidos correctamente",
+  "data": {
+    "hasNextPage": false,
+    "hasPreviousPage": false,
+    "currentPage": 1,
+    "pageSize": 8,
+    "totalItems": 2,
+    "totalPages": 1,
+    "items": [
+      {
+        "id": "user-abc123",
+        "roles": ["ORGANIZER"],
+        "email": "jane.doe@example.com",
+        "firstName": "Jane",
+        "lastName": "Doe",
+        "location": "New York, USA",
+        "isBlocked": false,
+        "eventsCount": 5,
+        "attendancesCount": 12,
+        "reportsCount": 0,
+        "ratingsCount": 15,
+        "averageRating": 4.7,
+        "membership": null,
+        "organizedEvents": [],
+        "attendances": [],
+        "comments": [],
+        "madeReports": [],
+        "reports": [],
+        "madeRatings": [],
+        "ratings": []
+      }
+    ]
+  }
+}
+```
+
+</ResponseExample>

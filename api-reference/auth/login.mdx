@@ -1,0 +1,105 @@
+---
+title: 'Login'
+description: 'Authenticate with email and password. Returns a JWT access token and refresh token.'
+---
+
+<Note>
+  The JWT access token expires after **120 minutes**. The refresh token expires after **240 minutes**. Use the [Refresh Token](/api-reference/auth/refresh-token) endpoint to obtain a new token pair before your session expires.
+</Note>
+
+## Request
+
+**POST** `/api/auth/login`
+
+No authentication required.
+
+### Body
+
+<ParamField body="email" type="string" required>
+  The user's email address.
+</ParamField>
+
+<ParamField body="password" type="string" required>
+  The user's password.
+</ParamField>
+
+## Response
+
+<ResponseField name="statusCode" type="number">
+  HTTP status code of the operation. `200` on success, `401` on failure.
+</ResponseField>
+
+<ResponseField name="status" type="boolean">
+  `true` if the request succeeded, `false` otherwise.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  A human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  Present on success. Contains the authenticated user's token and profile information.
+  <Expandable title="properties">
+    <ResponseField name="fullName" type="string">
+      The user's full name (first name and last name).
+    </ResponseField>
+    <ResponseField name="email" type="string">
+      The user's email address.
+    </ResponseField>
+    <ResponseField name="token" type="string">
+      The JWT access token. Include this as a Bearer token in the `Authorization` header for authenticated requests.
+    </ResponseField>
+    <ResponseField name="tokenExpiration" type="string">
+      ISO 8601 datetime indicating when the access token expires (120 minutes from issue time).
+    </ResponseField>
+    <ResponseField name="refreshToken" type="string">
+      The refresh token used to obtain a new access token pair.
+    </ResponseField>
+    <ResponseField name="refreshTokenExpire" type="string">
+      ISO 8601 datetime indicating when the refresh token expires (240 minutes from issue time).
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request POST \
+  --url https://localhost:7191/api/auth/login \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "email": "user@example.com",
+    "password": "YourPassword1!"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 Success
+{
+  "statusCode": 200,
+  "status": true,
+  "message": "Login exitoso.",
+  "data": {
+    "fullName": "Jane Doe",
+    "email": "user@example.com",
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "tokenExpiration": "2024-01-15T14:30:00Z",
+    "refreshToken": "dGhpcyBpcyBhIHJlZnJlc2ggdG9rZW4...",
+    "refreshTokenExpire": "2024-01-15T16:30:00Z"
+  }
+}
+```
+
+```json 401 Unauthorized
+{
+  "statusCode": 401,
+  "status": false,
+  "message": "Correo o contraseña incorrectos.",
+  "data": null
+}
+```
+
+</ResponseExample>

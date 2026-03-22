@@ -1,80 +1,196 @@
 ---
 title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+description: "Set up MeetPoint locally — backend API, database, and React frontend — in under 15 minutes."
+keywords: ["quickstart", "setup", "install", "backend", "frontend", "docker", "dotnet", "react"]
 ---
 
-## Get started in three steps
+## Prerequisites
 
-Get your documentation site running locally and make your first customization.
+Before you begin, make sure the following tools are installed on your machine:
 
-### Step 1: Set up your local environment
+| Tool | Purpose | Minimum version |
+|------|---------|-----------------|
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | Runs the SQL Server container | Any current release |
+| [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) | Builds and runs the ASP.NET Core backend | 8.0 |
+| [Node.js](https://nodejs.org/) | Runs the React frontend | 18+ |
 
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
-    
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+<Tip>Run `dotnet --version` and `node --version` in a terminal to confirm your installations before continuing.</Tip>
 
-### Step 2: Deploy your changes
+---
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+## Clone the repository
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+```bash
+git clone https://github.com/AnthonyEMF/meetpoint.git MeetPoint
+```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+---
 
-### Step 3: Go live
+## Setup
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+<Tabs>
+  <Tab title="Backend">
 
-## Next steps
+<Steps>
+  <Step title="Navigate to the Backend folder">
+    ```bash
+    cd MeetPoint/Backend
+    ```
+  </Step>
 
-Now that you have your docs running, explore these key features:
+  <Step title="Create appsettings.json">
+    Create a new file called `appsettings.json` in the `Backend/` directory and paste the following content.
 
-<CardGroup cols={2}>
+    <Warning>The SQL Server password in `appsettings.json` must match `MSSQL_SA_PASSWORD` in `docker-compose.yml`. Both default to `YourStrong@Password123` — change them together if you use a custom password.</Warning>
 
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
+    ```json appsettings.json
+    {
+      "ConnectionStrings": {
+        "DefaultConnection": "Server=localhost,1433;Database=MeetPoint;User Id=sa;Password=YourStrong@Password123;Trusted_Connection=false;TrustServerCertificate=true;Encrypt=true;"
+      },
+      "AllowURLS": [
+        "http://localhost:5173"
+      ],
+      "PageSize": 8,
+      "JWT": {
+        "ValidAudience": "http://localhost:5173",
+        "ValidIssuer": "https://localhost:7191",
+        "Secret": "Esta-es-una-clave-super-secreta-y-segura-para-JWT-con-al-menos-32-caracteres",
+        "Expires": "120",
+        "RefreshTokenExpire": "240"
+      },
+      "Logging": {
+        "LogLevel": {
+          "Default": "Information",
+          "Microsoft.AspNetCore": "Warning"
+        }
+      }
+    }
+    ```
 
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
+    <Note>Port numbers may vary depending on your environment. Update `AllowURLS`, `ValidAudience`, and `ValidIssuer` if your frontend or backend run on different ports.</Note>
+  </Step>
 
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
+  <Step title="Start the SQL Server container">
+    The `docker-compose.yml` spins up a SQL Server 2022 container named `meetpoint_sqlserver` on port `1433`.
 
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
+    ```bash
+    docker-compose up -d
+    ```
 
-</CardGroup>
+    The container uses a health check and retries up to 10 times. Wait a few seconds for it to become healthy before running migrations.
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+    <Tip>Run `docker ps` to confirm the container is running and healthy.</Tip>
+  </Step>
+
+  <Step title="Install Entity Framework tools">
+    Skip this step if you already have `dotnet-ef` installed globally.
+
+    ```bash
+    dotnet tool install --global dotnet-ef
+    ```
+  </Step>
+
+  <Step title="Restore dependencies">
+    ```bash
+    dotnet restore
+    ```
+  </Step>
+
+  <Step title="Run database migrations">
+    Create and apply the initial migration to set up the database schema:
+
+    ```bash
+    dotnet ef migrations add InitDatabase
+    dotnet ef database update
+    ```
+
+    <Note>On first run, the application also seeds initial data — including the test admin and user accounts — automatically via the `MeetPointSeeder`.</Note>
+  </Step>
+
+  <Step title="Start the backend">
+    ```bash
+    dotnet run
+    ```
+
+    The API will be available at `http://localhost:5048`. Swagger UI is accessible at `http://localhost:5048/swagger` while running in development mode.
+  </Step>
+</Steps>
+
+  </Tab>
+  <Tab title="Frontend">
+
+<Steps>
+  <Step title="Navigate to the Frontend folder">
+    ```bash
+    cd MeetPoint/Frontend
+    ```
+  </Step>
+
+  <Step title="Install dependencies">
+    ```bash
+    npm install
+    ```
+
+    This installs React 18, Vite, Tailwind CSS, Zustand, Formik, Axios, and all other dependencies listed in `package.json`.
+  </Step>
+
+  <Step title="Create the .env file">
+    Create a `.env` file in the `Frontend/` directory with the backend API URL:
+
+    ```bash .env
+    # URL of the backend API
+    VITE_API_URL=http://localhost:5048/api
+    ```
+
+    <Warning>The `VITE_API_URL` must match the port your backend is running on. If the backend uses a different port, update this value accordingly.</Warning>
+  </Step>
+
+  <Step title="Start the development server">
+    ```bash
+    npm run dev
+    ```
+
+    The frontend will be available at `http://localhost:5173`. The Vite dev server supports hot module replacement — changes appear instantly without a full reload.
+  </Step>
+</Steps>
+
+  </Tab>
+</Tabs>
+
+---
+
+## Test credentials
+
+Two seeded accounts are available immediately after running database migrations:
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@me.com` | `Temporal01*` |
+| User | `user@me.com` | `Temporal01*` |
+
+<Warning>These are development credentials only. Do not use these accounts or passwords in a production environment.</Warning>
+
+---
+
+## What to try first
+
+Once both services are running, here are a few things to explore:
+
+<Steps>
+  <Step title="Browse the home page">
+    Open `http://localhost:5173` to see the event feed. You can browse public events without logging in.
+  </Step>
+
+  <Step title="Log in as a user">
+    Sign in with `user@me.com` / `Temporal01*` to access the full user experience — create an event, register attendance, leave a comment, and rate an event.
+  </Step>
+
+  <Step title="Create an event">
+    After logging in, navigate to the event creation form. Fill in a title, description, category, date, and location, then submit to see it appear in the feed.
+  </Step>
+
+  <Step title="Explore the admin dashboard">
+    Sign in with `admin@me.com` / `Temporal01*` to access the admin dashboard. From there you can manage users, events, categories, attendances, comments, and reports.
+  </Step>
+</Steps>

@@ -1,0 +1,79 @@
+---
+title: 'Memberships'
+description: 'Upgrade your account to Organizer status by purchasing a MeetPoint membership.'
+keywords: ['membership', 'organizer', 'paypal', 'upgrade', 'meetpoint']
+---
+
+A membership is a paid subscription that upgrades a standard user account to the **Organizer** role. Organizers have all the permissions of a regular User and are recognized on the platform with a membership badge visible on their comments and attendance records.
+
+## Membership plans
+
+<Columns cols={2}>
+  <Card title="Monthly" icon="calendar">
+    Best for getting started. Billed at **$2.99 / month**. Sets a `StartDate` and an `EndDate` one month later.
+  </Card>
+  <Card title="Annual" icon="calendar-days">
+    Best value for active organizers. Billed at **$29.99 / year**. Sets a `StartDate` and an `EndDate` one year later.
+  </Card>
+</Columns>
+
+## Membership fields
+
+The `MembershipDto` contains the following fields.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique membership identifier. |
+| `userId` | `string` | ID of the member. |
+| `userName` | `string` | Display name of the member. |
+| `type` | `string` | Membership plan: `Mensual` or `Anual`. |
+| `price` | `decimal` | Amount paid. |
+| `startDate` | `DateTime` | Start of the membership period. |
+| `endDate` | `DateTime` | End of the membership period. |
+
+## Purchasing a membership
+
+<Steps>
+  <Step title="Sign in">
+    You must be authenticated as a `User`, `Organizer`, or `Admin` to purchase a membership. The `POST /api/memberships` endpoint requires a valid Bearer token.
+  </Step>
+  <Step title="Choose a plan">
+    Select either the **Monthly** (`Mensual`) or **Annual** (`Anual`) plan from the memberships page.
+  </Step>
+  <Step title="Complete PayPal payment">
+    The frontend presents PayPal checkout buttons powered by the `@paypal/react-paypal-js` SDK. Complete the payment flow in the PayPal dialog. Payment is processed before the membership record is created.
+  </Step>
+  <Step title="Membership is activated">
+    Once PayPal confirms the payment, the frontend calls `POST /api/memberships` with the selected plan details.
+
+    ```http
+    POST /api/memberships
+    ```
+
+    ```json
+    {
+      "userId": "user-id-string",
+      "type": "Mensual",
+      "price": 2.99,
+      "startDate": "2026-03-22T00:00:00",
+      "endDate": "2026-04-22T00:00:00"
+    }
+    ```
+
+    A successful response returns the created `MembershipDto`.
+  </Step>
+</Steps>
+
+<Note>
+  MeetPoint uses **PayPal** to process membership payments. The frontend integrates the `@paypal/react-paypal-js` SDK and renders PayPal checkout buttons directly on the memberships page. The backend only records the membership after the client confirms a successful PayPal transaction — no payment data is sent to the MeetPoint API.
+</Note>
+
+## Checking membership status
+
+To verify whether a user currently holds an active membership, call the state endpoint.
+
+```http
+GET /api/memberships/state/{userId}
+```
+
+Returns a `boolean`: `true` if the user has an active membership, `false` otherwise. This endpoint requires authentication with the `User`, `Organizer`, or `Admin` role.

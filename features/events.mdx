@@ -1,0 +1,116 @@
+---
+title: 'Events'
+description: 'Create, discover, and manage social events on MeetPoint.'
+keywords: ['events', 'create event', 'event management', 'meetpoint']
+---
+
+Events are the core of MeetPoint. An event represents a social gathering organized by a user. Any authenticated user can create an event, and all visitors can browse the event feed.
+
+<Columns cols={3}>
+  <Card title="Create" icon="circle-plus">
+    Authenticated users with the User, Organizer, or Admin role can publish new events.
+  </Card>
+  <Card title="Discover" icon="magnifying-glass">
+    Anyone can browse, search, and paginate the public event feed without signing in.
+  </Card>
+  <Card title="Engage" icon="calendar-check">
+    Attendees can register, leave comments, and rate the organizer after the event.
+  </Card>
+</Columns>
+
+## Event fields
+
+The following fields are returned in an `EventDto` response.
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique identifier for the event. |
+| `title` | `string` | Display name of the event. Required. |
+| `description` | `string` | Full description of the event. Required. |
+| `ubication` | `string` | Physical location or address. Required. |
+| `date` | `DateTime` | Date and time the event takes place. Required. |
+| `publicationDate` | `DateTime` | Timestamp of when the event was published. |
+| `categoryId` | `Guid` | ID of the category the event belongs to. |
+| `categoryName` | `string` | Human-readable category label. |
+| `organizerId` | `string` | User ID of the event organizer. |
+| `organizerName` | `string` | Display name of the organizer. |
+| `organizerRating` | `decimal` | Aggregated star rating of the organizer. |
+| `organizerRatingsCount` | `int` | Total number of ratings the organizer has received. |
+| `attendancesCount` | `int` | Number of registered attendances. |
+| `commentsCount` | `int` | Number of comments posted on the event. |
+| `attendances` | `AttendanceDto[]` | List of attendance records for the event. |
+| `comments` | `CommentDto[]` | List of comments on the event. |
+
+## Role-based access
+
+| Operation | Anonymous | User | Organizer | Admin |
+|---|---|---|---|---|
+| List events (search + paginate) | Yes | Yes | Yes | Yes |
+| Get event by ID | Yes | Yes | Yes | Yes |
+| Create event | No | Yes | Yes | Yes |
+| Edit event | No | Yes (own) | Yes (own) | Yes |
+| Delete event | No | Yes (own) | Yes (own) | Yes |
+
+<Info>
+  The `GET /api/events` and `GET /api/events/{id}` endpoints are decorated with `[AllowAnonymous]` and do not require a Bearer token.
+</Info>
+
+## Event lifecycle
+
+An event follows this general progression after it is published:
+
+1. **Creation** — An authenticated user submits an `EventCreateDto` to `POST /api/events`. The organizer ID is resolved from the authenticated user.
+2. **Discovery** — The event appears in the paginated feed returned by `GET /api/events`. Visitors can filter results with the `searchTerm` query parameter.
+3. **Attendance** — Authenticated users register their interest via `POST /api/attendances`.
+4. **Rating** — Once an event has passed, attendees can rate the organizer via `POST /api/ratings`.
+
+## API endpoints
+
+### List events
+
+```http
+GET /api/events?searchTerm=&page=1
+```
+
+Returns a paginated list of `EventDto` objects. Both query parameters are optional.
+
+### Get event by ID
+
+```http
+GET /api/events/{id}
+```
+
+Returns a single `EventDto` including full attendance and comment lists.
+
+### Create event
+
+```http
+POST /api/events
+```
+
+```json
+{
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "organizerId": "user-id-string",
+  "title": "Morning Yoga in the Park",
+  "description": "A relaxed outdoor yoga session open to all levels.",
+  "ubication": "Central Park, New York",
+  "date": "2026-06-15T08:00:00"
+}
+```
+
+### Edit event
+
+```http
+PUT /api/events/{id}
+```
+
+Accepts an `EventEditDto` with the same fields as create, minus `organizerId`.
+
+### Delete event
+
+```http
+DELETE /api/events/{id}
+```
+
+Permanently removes the event. Only the organizer who created it or an Admin can delete it.

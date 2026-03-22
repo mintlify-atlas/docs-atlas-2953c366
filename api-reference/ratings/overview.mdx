@@ -1,0 +1,370 @@
+---
+title: "Ratings"
+description: "Manage event ratings on MeetPoint. Authenticated users can rate events they attended by assigning a score between 0 and 5. Listing all ratings is restricted to admins; reading an individual rating is public."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/ratings` | ADMIN only |
+| GET | `/api/ratings/{id}` | None (public) |
+| GET | `/api/ratings/user/{userId}` | USER, ADMIN, or ORGANIZER |
+| POST | `/api/ratings` | USER, ADMIN, or ORGANIZER |
+| PUT | `/api/ratings/{id}` | USER, ADMIN, or ORGANIZER |
+| DELETE | `/api/ratings/{id}` | USER, ADMIN, or ORGANIZER |
+
+---
+
+## GET /api/ratings
+
+Returns a paginated list of all ratings on the platform.
+
+**Auth:** Bearer token required. Role: **ADMIN** only.
+
+<Warning>
+  This endpoint is restricted to the **ADMIN** role. All other authenticated users will receive `403 Forbidden`.
+</Warning>
+
+### Query Parameters
+
+<ParamField query="searchTerm" type="string">
+  Optional search string to filter ratings. Defaults to an empty string.
+</ParamField>
+
+<ParamField query="page" type="integer">
+  Page number for pagination. Defaults to `1`.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="array">
+  List of rating objects.
+  <Expandable title="Rating object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the rating.
+    </ResponseField>
+    <ResponseField name="raterId" type="string">
+      ID of the user who submitted the rating.
+    </ResponseField>
+    <ResponseField name="raterName" type="string">
+      Display name of the rater.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the rated event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the rated event.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the event organizer being rated.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the organizer.
+    </ResponseField>
+    <ResponseField name="score" type="decimal">
+      Rating score between 0 and 5.
+    </ResponseField>
+    <ResponseField name="ratingDate" type="string (ISO 8601)">
+      Timestamp when the rating was submitted.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/ratings?page=1" \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+---
+
+## GET /api/ratings/{id}
+
+Returns a single rating by its UUID.
+
+**Auth:** None required.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the rating.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The rating object.
+  <Expandable title="Rating object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the rating.
+    </ResponseField>
+    <ResponseField name="raterId" type="string">
+      ID of the rater.
+    </ResponseField>
+    <ResponseField name="raterName" type="string">
+      Display name of the rater.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the rated event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the rated event.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the organizer.
+    </ResponseField>
+    <ResponseField name="score" type="decimal">
+      Rating score between 0 and 5.
+    </ResponseField>
+    <ResponseField name="ratingDate" type="string (ISO 8601)">
+      Timestamp of the rating.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/ratings/3fa85f64-5717-4562-b3fc-2c963f66afa6"
+```
+
+---
+
+## GET /api/ratings/user/{userId}
+
+Returns the average rating score for a specific user (organizer).
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="userId" type="string" required>
+  The ID of the user (organizer) whose average rating to retrieve.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="decimal">
+  The average rating score for the specified user.
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/ratings/user/user-id-string" \
+  -H "Authorization: Bearer <token>"
+```
+
+---
+
+## POST /api/ratings
+
+Submits a new rating for an event and its organizer.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Request Body
+
+<ParamField body="raterId" type="string">
+  The ID of the user submitting the rating. Typically resolved from the authenticated token.
+</ParamField>
+
+<ParamField body="eventId" type="string (UUID)" required>
+  The ID of the event being rated.
+</ParamField>
+
+<ParamField body="organizerId" type="string" required>
+  The ID of the event organizer being rated.
+</ParamField>
+
+<ParamField body="score" type="decimal" required>
+  The rating score. Must be between `0` and `5` (inclusive).
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The newly created rating object.
+  <Expandable title="Rating object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the new rating.
+    </ResponseField>
+    <ResponseField name="raterId" type="string">
+      ID of the rater.
+    </ResponseField>
+    <ResponseField name="raterName" type="string">
+      Display name of the rater.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the rated event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the rated event.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the organizer.
+    </ResponseField>
+    <ResponseField name="score" type="decimal">
+      Submitted score.
+    </ResponseField>
+    <ResponseField name="ratingDate" type="string (ISO 8601)">
+      Timestamp the rating was recorded.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/ratings" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "raterId": "user-id-string",
+    "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "organizerId": "organizer-id-string",
+    "score": 4.5
+  }'
+```
+
+---
+
+## PUT /api/ratings/{id}
+
+Updates the score of an existing rating.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the rating to update.
+</ParamField>
+
+### Request Body
+
+<ParamField body="score" type="decimal" required>
+  The updated rating score. Must be between `0` and `5` (inclusive).
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The updated rating object.
+  <Expandable title="Rating object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the rating.
+    </ResponseField>
+    <ResponseField name="raterId" type="string">
+      ID of the rater.
+    </ResponseField>
+    <ResponseField name="raterName" type="string">
+      Display name of the rater.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the organizer.
+    </ResponseField>
+    <ResponseField name="score" type="decimal">
+      Updated score.
+    </ResponseField>
+    <ResponseField name="ratingDate" type="string (ISO 8601)">
+      Original rating timestamp.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X PUT "https://api.meetpoint.com/api/ratings/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "score": 3.0
+  }'
+```
+
+---
+
+## DELETE /api/ratings/{id}
+
+Deletes a rating.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="id" type="string (UUID)" required>
+  The unique identifier of the rating to delete.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="data" type="object">
+  The deleted rating object.
+  <Expandable title="Rating object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the deleted rating.
+    </ResponseField>
+    <ResponseField name="raterId" type="string">
+      ID of the rater.
+    </ResponseField>
+    <ResponseField name="raterName" type="string">
+      Display name of the rater.
+    </ResponseField>
+    <ResponseField name="eventId" type="string (UUID)">
+      ID of the event.
+    </ResponseField>
+    <ResponseField name="eventTitle" type="string">
+      Title of the event.
+    </ResponseField>
+    <ResponseField name="organizerId" type="string">
+      ID of the organizer.
+    </ResponseField>
+    <ResponseField name="organizerName" type="string">
+      Display name of the organizer.
+    </ResponseField>
+    <ResponseField name="score" type="decimal">
+      Score of the deleted rating.
+    </ResponseField>
+    <ResponseField name="ratingDate" type="string (ISO 8601)">
+      Timestamp of the original rating.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X DELETE "https://api.meetpoint.com/api/ratings/3fa85f64-5717-4562-b3fc-2c963f66afa6" \
+  -H "Authorization: Bearer <token>"
+```

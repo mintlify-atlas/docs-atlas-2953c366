@@ -1,0 +1,189 @@
+---
+title: "Dashboard"
+description: "Retrieve platform-wide statistics for MeetPoint administrators. The dashboard endpoint returns aggregate counts and detailed lists of users, events, categories, and reports."
+---
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| GET | `/api/dashboard/info` | ADMIN only |
+
+---
+
+## GET /api/dashboard/info
+
+Returns a snapshot of platform-wide statistics including aggregate counts and detailed object lists for users, events, categories, and reports.
+
+**Auth:** Bearer token required. Role: **ADMIN** only.
+
+<Warning>
+  This endpoint is restricted to the **ADMIN** role. Any request from a non-admin authenticated user will receive `403 Forbidden`.
+</Warning>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The dashboard statistics object.
+  <Expandable title="Dashboard object">
+    <ResponseField name="usersCount" type="integer">
+      Total number of registered users on the platform.
+    </ResponseField>
+    <ResponseField name="eventsCount" type="integer">
+      Total number of events on the platform.
+    </ResponseField>
+    <ResponseField name="attendancesCount" type="integer">
+      Total number of attendance records across all events.
+    </ResponseField>
+    <ResponseField name="commentsCount" type="integer">
+      Total number of comments across all events.
+    </ResponseField>
+    <ResponseField name="users" type="array">
+      List of user summary objects.
+      <Expandable title="User object">
+        <ResponseField name="id" type="string">
+          Unique identifier of the user.
+        </ResponseField>
+        <ResponseField name="fullName" type="string">
+          Full name of the user.
+        </ResponseField>
+        <ResponseField name="email" type="string">
+          Email address of the user.
+        </ResponseField>
+        <ResponseField name="roles" type="array of strings">
+          List of roles assigned to the user (e.g. `USER`, `ADMIN`, `ORGANIZER`).
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="events" type="array">
+      List of event summary objects.
+      <Expandable title="Event object">
+        <ResponseField name="id" type="string (UUID)">
+          Unique identifier of the event.
+        </ResponseField>
+        <ResponseField name="title" type="string">
+          Title of the event.
+        </ResponseField>
+        <ResponseField name="description" type="string">
+          Description of the event.
+        </ResponseField>
+        <ResponseField name="attendancesCount" type="integer">
+          Number of attendance records for this event.
+        </ResponseField>
+        <ResponseField name="commentsCount" type="integer">
+          Number of comments on this event.
+        </ResponseField>
+        <ResponseField name="publicationDate" type="string (ISO 8601)">
+          Timestamp when the event was published.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="categories" type="array">
+      List of category summary objects.
+      <Expandable title="Category object">
+        <ResponseField name="id" type="string (UUID)">
+          Unique identifier of the category.
+        </ResponseField>
+        <ResponseField name="name" type="string">
+          Name of the category.
+        </ResponseField>
+        <ResponseField name="description" type="string">
+          Description of the category.
+        </ResponseField>
+        <ResponseField name="createdDate" type="string (ISO 8601)">
+          Timestamp when the category was created.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="reports" type="array">
+      List of report summary objects.
+      <Expandable title="Report object">
+        <ResponseField name="id" type="string (UUID)">
+          Unique identifier of the report.
+        </ResponseField>
+        <ResponseField name="reporterName" type="string">
+          Display name of the user who filed the report.
+        </ResponseField>
+        <ResponseField name="organizerName" type="string">
+          Display name of the reported organizer.
+        </ResponseField>
+        <ResponseField name="reason" type="string">
+          Reason stated in the report.
+        </ResponseField>
+        <ResponseField name="reportDate" type="string (ISO 8601)">
+          Timestamp when the report was filed.
+        </ResponseField>
+      </Expandable>
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/dashboard/info" \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+### Example Response
+
+```json
+{
+  "status": true,
+  "statusCode": 200,
+  "message": "Dashboard info retrieved successfully.",
+  "data": {
+    "usersCount": 120,
+    "eventsCount": 45,
+    "attendancesCount": 310,
+    "commentsCount": 87,
+    "users": [
+      {
+        "id": "user-id-string",
+        "fullName": "Jane Doe",
+        "email": "jane@example.com",
+        "roles": ["USER"]
+      }
+    ],
+    "events": [
+      {
+        "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+        "title": "Jazz Night",
+        "description": "An evening of live jazz music.",
+        "attendancesCount": 25,
+        "commentsCount": 8,
+        "publicationDate": "2026-03-01T18:00:00Z"
+      }
+    ],
+    "categories": [
+      {
+        "id": "a1b2c3d4-1234-5678-abcd-ef1234567890",
+        "name": "Music",
+        "description": "Events related to music and concerts",
+        "createdDate": "2026-01-15T10:00:00Z"
+      }
+    ],
+    "reports": [
+      {
+        "id": "b2c3d4e5-2345-6789-bcde-f12345678901",
+        "reporterName": "John Smith",
+        "organizerName": "Bad Organizer",
+        "reason": "This organizer cancelled the event without notice.",
+        "reportDate": "2026-03-10T14:30:00Z"
+      }
+    ]
+  }
+}
+```

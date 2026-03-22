@@ -1,0 +1,148 @@
+---
+title: 'Comments & Ratings'
+description: 'Post threaded comments on events and rate organizers after attending.'
+keywords: ['comments', 'ratings', 'reviews', 'star rating', 'meetpoint']
+---
+
+<Tabs>
+  <Tab title="Comments">
+
+## How comments work
+
+Comments allow attendees and visitors to discuss an event. Each comment is tied to a specific event and can optionally be a reply to another comment, enabling threaded conversations.
+
+The `CommentDto` includes a `parentId` field. When `parentId` is `null`, the comment is a top-level post. When `parentId` references another comment's ID, it is a reply. The `replies` list on each `CommentDto` contains all direct child comments.
+
+### Comment fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique comment identifier. |
+| `userId` | `string` | ID of the user who posted the comment. |
+| `userName` | `string` | Display name of the commenter. |
+| `userMembership` | `MembershipDto` | Active membership of the commenter, if any. |
+| `eventId` | `Guid` | ID of the event this comment belongs to. |
+| `eventTitle` | `string` | Title of the event. |
+| `content` | `string` | Text body of the comment. |
+| `publicationDate` | `DateTime` | When the comment was posted. |
+| `parentId` | `Guid?` | ID of the parent comment, or `null` for top-level posts. |
+| `replies` | `CommentDto[]` | Direct replies to this comment. |
+
+### Posting a comment
+
+```http
+POST /api/comments
+```
+
+```json
+{
+  "userId": "user-id-string",
+  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "content": "Looking forward to this event!",
+  "parentId": null
+}
+```
+
+To post a reply, set `parentId` to the `id` of the comment you are replying to.
+
+```json
+{
+  "userId": "user-id-string",
+  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "content": "See you there!",
+  "parentId": "parent-comment-id"
+}
+```
+
+### Editing a comment
+
+```http
+PUT /api/comments/{id}
+```
+
+```json
+{
+  "content": "Updated comment text."
+}
+```
+
+### Deleting a comment
+
+```http
+DELETE /api/comments/{id}
+```
+
+Only the `User`, `Organizer`, or `Admin` roles can create, edit, or delete comments. Reading comments is public via `GET /api/comments` and `GET /api/comments/{id}`.
+
+  </Tab>
+  <Tab title="Ratings">
+
+## How ratings work
+
+Ratings are a way for attendees to score the organizer of an event they attended. Each rating targets a specific organizer and is linked to the event where the interaction occurred.
+
+The aggregated score appears as `organizerRating` on the `EventDto`, giving other users a sense of an organizer's track record.
+
+### Rating fields
+
+| Field | Type | Description |
+|---|---|---|
+| `id` | `Guid` | Unique rating identifier. |
+| `raterId` | `string` | ID of the user submitting the rating. |
+| `raterName` | `string` | Display name of the rater. |
+| `eventId` | `Guid` | ID of the event the rating is associated with. |
+| `eventTitle` | `string` | Title of the event. |
+| `organizerId` | `string` | ID of the organizer being rated. |
+| `organizerName` | `string` | Display name of the organizer. |
+| `score` | `decimal` | Numeric score between 0 and 5. |
+| `ratingDate` | `DateTime` | When the rating was submitted. |
+
+### Submitting a rating
+
+```http
+POST /api/ratings
+```
+
+```json
+{
+  "raterId": "user-id-string",
+  "eventId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "organizerId": "organizer-id-string",
+  "score": 4.5
+}
+```
+
+The `score` must be a value between **0 and 5**.
+
+### Rating restrictions
+
+- Only authenticated users with the `User`, `Organizer`, or `Admin` role can submit or edit ratings.
+- Ratings are intended for users who attended the event. The `raterId` identifies who is submitting the rating.
+- The full paginated list of ratings (`GET /api/ratings`) is restricted to the `Admin` role. Individual ratings (`GET /api/ratings/{id}`) are publicly accessible.
+
+### Getting an organizer's average rating
+
+```http
+GET /api/ratings/user/{userId}
+```
+
+Returns the aggregated `decimal` score for a given organizer. This is the same value surfaced as `organizerRating` on event responses.
+
+### Editing or deleting a rating
+
+```http
+PUT /api/ratings/{id}
+```
+
+```json
+{
+  "score": 3.0
+}
+```
+
+```http
+DELETE /api/ratings/{id}
+```
+
+  </Tab>
+</Tabs>

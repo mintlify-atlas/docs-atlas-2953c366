@@ -1,0 +1,72 @@
+---
+title: "Handling reports"
+description: "How to review, manage, and act on user-submitted reports in the admin panel."
+---
+
+Users can report other users directly from their profile page. Admins are the only role that can view the full list of reports. The reports section is embedded in the [dashboard](/admin-guide/dashboard) and also available as a dedicated management area.
+
+## Viewing reports
+
+The reports list is fetched from `GET /api/reports`, which requires an Admin token. The list supports search and pagination.
+
+```http
+GET /api/reports?searchTerm=spam&page=1
+Authorization: Bearer <admin-token>
+```
+
+<Note>
+  Individual report records can be fetched by any authenticated user via `GET /api/reports/{id}`, but the full paginated list is restricted to Admins only.
+</Note>
+
+## What a report contains
+
+Each report record exposes the following fields:
+
+| Field | Description |
+|---|---|
+| `id` | Unique identifier for the report (UUID) |
+| `reporterId` | ID of the user who filed the report |
+| `reporterName` | Display name of the reporter |
+| `organizerId` | ID of the user being reported |
+| `organizerName` | Display name of the reported user |
+| `reason` | Written explanation of the report (minimum 10 characters) |
+| `reportDate` | Timestamp of when the report was submitted |
+
+## Report review workflow
+
+<Steps>
+  <Step title="Open the reports section">
+    Navigate to **Administration → Panel de Control** and scroll down to the **Reportes de usuarios** section. Use the search bar to filter by reporter name, reported user name, or keywords in the reason.
+  </Step>
+  <Step title="Read the report details">
+    Review the reporter name, reported user name, reason, and report date displayed in each report row. For more context, use `GET /api/reports/{id}` or navigate to the reported user's profile via the Users list.
+  </Step>
+  <Step title="Investigate the reported user">
+    Open the [Users list](/admin-guide/managing-users) and locate the reported user by name or ID. Review their `ReportsCount`, `AverageRating`, and activity on the platform to determine whether the report is warranted.
+  </Step>
+  <Step title="Take action">
+    Choose one of the following actions based on your assessment:
+
+    - **Dismiss** — If the report is unfounded, delete it using `DELETE /api/reports/{id}` to remove it from the queue.
+    - **Update the reason** — If the report needs a corrected or expanded reason, use `PUT /api/reports/{id}` with an updated `reason` field.
+    - **Block the user** — If the report is valid and the reported behavior warrants action, block the account using `PUT /api/users/block/{id}`. See [blocking a user](/admin-guide/managing-users#blocking-and-unblocking-a-user) for the full steps.
+  </Step>
+  <Step title="Confirm and refresh">
+    After taking action, the dashboard reports list refreshes automatically via `handleReportsChange`. Verify that the report queue reflects the updated state.
+  </Step>
+</Steps>
+
+## Escalating to a block
+
+If a report warrants blocking the reported user, use the block endpoint after completing your review:
+
+```http
+PUT /api/users/block/{id}
+Authorization: Bearer <admin-token>
+```
+
+This toggles the `IsBlocked` flag on the account. A blocked user cannot interact with the platform. You can reverse this at any time by calling the same endpoint again.
+
+<Warning>
+  Blocking a user is reversible, but it immediately prevents the account from logging in or performing any actions on the platform. Confirm the report is credible before proceeding.
+</Warning>

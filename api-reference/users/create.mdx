@@ -1,0 +1,112 @@
+---
+title: 'Create user'
+description: 'Create a new user account. Requires ADMIN role.'
+---
+
+## POST /api/users
+
+Creates a new user account with a specified role.
+
+<Info>
+  Requires a valid Bearer token. Allowed roles: `ADMIN`.
+</Info>
+
+## Request body
+
+<ParamField path="email" type="string" required>
+  Email address for the new user. Must be a valid email format.
+</ParamField>
+
+<ParamField path="password" type="string" required>
+  Password for the new user. Must be at least 8 characters and include uppercase letters, lowercase letters, numbers, and special characters (`@$!%*?&`).
+</ParamField>
+
+<ParamField path="role" type="string" required>
+  Role to assign to the user. Must be one of: `ADMIN`, `ORGANIZER`, `USER`.
+</ParamField>
+
+<ParamField path="firstName" type="string" required>
+  First name of the user.
+</ParamField>
+
+<ParamField path="lastName" type="string" required>
+  Last name of the user.
+</ParamField>
+
+<ParamField path="location" type="string" required>
+  Geographic location of the user.
+</ParamField>
+
+## Response fields
+
+<ResponseField name="status" type="boolean" required>
+  Indicates whether the request succeeded.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable result message.
+</ResponseField>
+
+<ResponseField name="data" type="object" required>
+  The created user object. See [Get user](/api-reference/users/get-by-id) for the full field list.
+</ResponseField>
+
+<RequestExample>
+
+```bash cURL
+curl --request POST \
+  --url 'https://api.meetpoint.com/api/users' \
+  --header 'Authorization: Bearer <token>' \
+  --header 'Content-Type: application/json' \
+  --data '{
+    "email": "john.smith@example.com",
+    "password": "Secure@1234",
+    "role": "ORGANIZER",
+    "firstName": "John",
+    "lastName": "Smith",
+    "location": "Los Angeles, USA"
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200
+{
+  "status": true,
+  "message": "Usuario creado correctamente",
+  "data": {
+    "id": "user-def456",
+    "roles": ["ORGANIZER"],
+    "email": "john.smith@example.com",
+    "firstName": "John",
+    "lastName": "Smith",
+    "location": "Los Angeles, USA",
+    "isBlocked": false,
+    "membership": null,
+    "eventsCount": 0,
+    "attendancesCount": 0,
+    "reportsCount": 0,
+    "ratingsCount": 0,
+    "averageRating": 0,
+    "organizedEvents": [],
+    "attendances": [],
+    "comments": [],
+    "madeReports": [],
+    "reports": [],
+    "madeRatings": [],
+    "ratings": []
+  }
+}
+```
+
+```json 401
+{
+  "status": false,
+  "message": "No autorizado",
+  "data": null
+}
+```
+
+</ResponseExample>

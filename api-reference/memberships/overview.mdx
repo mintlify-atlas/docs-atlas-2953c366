@@ -1,0 +1,140 @@
+---
+title: "Memberships"
+description: "Manage user memberships on MeetPoint. Authenticated users can purchase a membership (Monthly or Annual) and query the active membership state for any user account."
+---
+
+<Note>
+  Membership purchases on MeetPoint are processed through **PayPal**. Complete the PayPal payment flow to obtain an order confirmation before calling the `POST /api/memberships` endpoint.
+</Note>
+
+## Endpoints
+
+| Method | Path | Auth Required |
+|--------|------|---------------|
+| POST | `/api/memberships` | USER, ADMIN, or ORGANIZER |
+| GET | `/api/memberships/state/{userId}` | USER, ADMIN, or ORGANIZER |
+
+---
+
+## POST /api/memberships
+
+Creates a new membership for a user. Use this endpoint after completing the PayPal payment flow to record the membership in MeetPoint.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Request Body
+
+<ParamField body="userId" type="string">
+  The ID of the user receiving the membership. Typically resolved from the authenticated token.
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  The membership type. Must be exactly `Mensual` or `Anual`.
+</ParamField>
+
+<ParamField body="price" type="decimal" required>
+  The price paid for the membership.
+</ParamField>
+
+<ParamField body="startDate" type="string (ISO 8601)" required>
+  The date the membership begins.
+</ParamField>
+
+<ParamField body="endDate" type="string (ISO 8601)" required>
+  The date the membership expires.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="object">
+  The newly created membership object.
+  <Expandable title="Membership object">
+    <ResponseField name="id" type="string (UUID)">
+      Unique identifier of the membership record.
+    </ResponseField>
+    <ResponseField name="userId" type="string">
+      ID of the user the membership belongs to.
+    </ResponseField>
+    <ResponseField name="userName" type="string">
+      Display name of the user.
+    </ResponseField>
+    <ResponseField name="type" type="string">
+      Membership type: `Mensual` or `Anual`.
+    </ResponseField>
+    <ResponseField name="price" type="decimal">
+      Price paid for the membership.
+    </ResponseField>
+    <ResponseField name="startDate" type="string (ISO 8601)">
+      Membership start date.
+    </ResponseField>
+    <ResponseField name="endDate" type="string (ISO 8601)">
+      Membership expiry date.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+### Example
+
+```bash
+curl -X POST "https://api.meetpoint.com/api/memberships" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "userId": "user-id-string",
+    "type": "Mensual",
+    "price": 9.99,
+    "startDate": "2026-03-22T00:00:00Z",
+    "endDate": "2026-04-22T00:00:00Z"
+  }'
+```
+
+---
+
+## GET /api/memberships/state/{userId}
+
+Returns whether a user currently has an active membership.
+
+**Auth:** Bearer token required. Roles: **USER**, **ADMIN**, or **ORGANIZER**.
+
+### Path Parameters
+
+<ParamField path="userId" type="string" required>
+  The ID of the user whose membership state to check.
+</ParamField>
+
+### Response Fields
+
+<ResponseField name="status" type="boolean">
+  Indicates whether the request was successful.
+</ResponseField>
+
+<ResponseField name="statusCode" type="integer">
+  HTTP status code of the response.
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the result.
+</ResponseField>
+
+<ResponseField name="data" type="boolean">
+  `true` if the user has an active membership, `false` otherwise.
+</ResponseField>
+
+### Example
+
+```bash
+curl -X GET "https://api.meetpoint.com/api/memberships/state/user-id-string" \
+  -H "Authorization: Bearer <token>"
+```

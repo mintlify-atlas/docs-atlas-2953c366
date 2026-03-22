@@ -1,0 +1,138 @@
+---
+title: 'Creating events'
+description: 'How to create, edit, and delete events on MeetPoint.'
+keywords: ['create event', 'edit event', 'delete event', 'organizer', 'event form']
+---
+
+## Role requirements
+
+Creating, editing, and deleting events requires an authenticated account. The `POST /api/events`, `PUT /api/events/{id}`, and `DELETE /api/events/{id}` endpoints accept the `USER`, `ORGANIZER`, and `ADMIN` roles.
+
+<Info>
+  While any authenticated user can technically submit to the events API, the UI surfaces the **Nuevo Evento** button to all logged-in users. Upgrading to an Organizer membership unlocks additional benefits such as managing attendee lists. See [Memberships](/features/memberships) for details.
+</Info>
+
+---
+
+## Creating an event
+
+The event creation form is at `/main/event/create`. You can reach it by clicking **Nuevo Evento** in the sidebar or on your profile page.
+
+<Steps>
+  <Step title="Open the creation form">
+    Click **Nuevo Evento** in the sidebar or on the profile page (`/user`). The form loads at `/main/event/create`.
+  </Step>
+  <Step title="Fill in the event details">
+    Complete all required fields:
+
+    | Field | Form label | Type | Validation |
+    |---|---|---|---|
+    | `title` | Título del Evento | Text | Required |
+    | `categoryId` | Categoría | Select | Required — choose from the available categories |
+    | `description` | Descripción | Textarea | Required |
+    | `ubication` | Ubicación | Text | Required |
+    | `date` | Fecha de Realización | Date/time picker | Required, must be a future date |
+
+    The category dropdown is populated from `GET /api/categories`. If categories are still loading, the dropdown shows a loading state.
+  </Step>
+  <Step title="Submit">
+    Click **Crear Evento**. The button label changes to **Creando...** while the request is in progress. On success, a confirmation dialog appears and you are redirected to the new event's detail page (`/main/event/{id}`).
+  </Step>
+</Steps>
+
+### API reference
+
+```http
+POST /api/events
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "title": "Tech Meetup Madrid",
+  "description": "Monthly gathering for local developers.",
+  "ubication": "Madrid, Spain",
+  "date": "2026-06-15T18:00:00"
+}
+```
+
+<Note>
+  The `organizerId` field in `EventCreateDto` is set server-side from the authenticated user's identity. You do not need to supply it in the request body.
+</Note>
+
+---
+
+## Editing an event
+
+Event organizers and administrators can edit an event from its detail page. The edit button (`/main/event/edit/{id}`) is only shown to the event's organizer or to users with the `ADMIN` role.
+
+<Steps>
+  <Step title="Open the event page">
+    Navigate to the event at `/main/event/{id}`.
+  </Step>
+  <Step title="Click Editar Evento">
+    The blue **Editar Evento** button appears in the top-right of the event card if you are the organizer or an admin.
+  </Step>
+  <Step title="Update the fields">
+    The edit form at `/main/event/edit/{id}` pre-fills all current values. You can update any of the following fields:
+
+    | Field | Form label |
+    |---|---|
+    | `title` | Título del Evento |
+    | `categoryId` | Categoría |
+    | `description` | Descripción |
+    | `ubication` | Ubicación |
+    | `date` | Fecha de Realización |
+  </Step>
+  <Step title="Save">
+    Click **Actualizar Evento**. On success, a confirmation dialog appears and you are redirected back to the event detail page.
+  </Step>
+</Steps>
+
+### API reference
+
+```http
+PUT /api/events/{id}
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "categoryId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "title": "Tech Meetup Madrid — June Edition",
+  "description": "Updated description.",
+  "ubication": "Madrid, Spain",
+  "date": "2026-06-15T19:00:00"
+}
+```
+
+---
+
+## Deleting an event
+
+The red **Eliminar Evento** button is available on the event detail page to the event's organizer and to admins.
+
+<Warning>
+  Deleting an event is permanent. All associated attendances and comments are also removed. This action cannot be undone.
+</Warning>
+
+<Steps>
+  <Step title="Open the event page">
+    Navigate to the event you want to delete at `/main/event/{id}`.
+  </Step>
+  <Step title="Click Eliminar Evento">
+    The red **Eliminar Evento** button is visible in the top-right of the event card.
+  </Step>
+  <Step title="Confirm deletion">
+    A confirmation dialog appears. Click **Sí, eliminar** to proceed. Click **No, cancelar** to abort.
+  </Step>
+  <Step title="Redirected">
+    On successful deletion you are redirected to the events listing at `/main`.
+  </Step>
+</Steps>
+
+### API reference
+
+```http
+DELETE /api/events/{id}
+Authorization: Bearer <token>
+```
