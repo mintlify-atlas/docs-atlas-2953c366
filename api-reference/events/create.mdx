@@ -13,27 +13,27 @@ Creates a new event. The authenticated user is associated with the event through
 
 ## Request body
 
-<ParamField path="categoryId" type="string" required>
+<ParamField body="categoryId" type="string" required>
   GUID of the category this event belongs to.
 </ParamField>
 
-<ParamField path="organizerId" type="string" required>
-  ID of the user organizing the event.
+<ParamField body="organizerId" type="string">
+  ID of the user organizing the event. Typically resolved server-side from the authenticated token.
 </ParamField>
 
-<ParamField path="title" type="string" required>
+<ParamField body="title" type="string" required>
   Title of the event.
 </ParamField>
 
-<ParamField path="description" type="string" required>
+<ParamField body="description" type="string" required>
   Full description of the event.
 </ParamField>
 
-<ParamField path="ubication" type="string" required>
+<ParamField body="ubication" type="string" required>
   Physical location or address where the event will take place.
 </ParamField>
 
-<ParamField path="date" type="string" required>
+<ParamField body="date" type="string" required>
   Date and time of the event (ISO 8601 format).
 </ParamField>
 

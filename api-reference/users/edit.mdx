@@ -19,27 +19,27 @@ Updates the details of an existing user account.
 
 ## Request body
 
-<ParamField path="email" type="string" required>
+<ParamField body="email" type="string" required>
   Updated email address for the user. Must be a valid email format.
 </ParamField>
 
-<ParamField path="password" type="string" required>
+<ParamField body="password" type="string" required>
   Updated password for the user. Must be at least 8 characters and include uppercase letters, lowercase letters, numbers, and special characters (`@$!%*?&`).
 </ParamField>
 
-<ParamField path="role" type="string" required>
+<ParamField body="role" type="string" required>
   Updated role for the user. Must be one of: `ADMIN`, `ORGANIZER`, `USER`.
 </ParamField>
 
-<ParamField path="firstName" type="string" required>
+<ParamField body="firstName" type="string" required>
   Updated first name of the user.
 </ParamField>
 
-<ParamField path="lastName" type="string" required>
+<ParamField body="lastName" type="string" required>
   Updated last name of the user.
 </ParamField>
 
-<ParamField path="location" type="string" required>
+<ParamField body="location" type="string" required>
   Updated geographic location of the user.
 </ParamField>
 

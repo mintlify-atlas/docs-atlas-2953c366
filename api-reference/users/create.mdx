@@ -13,27 +13,27 @@ Creates a new user account with a specified role.
 
 ## Request body
 
-<ParamField path="email" type="string" required>
+<ParamField body="email" type="string" required>
   Email address for the new user. Must be a valid email format.
 </ParamField>
 
-<ParamField path="password" type="string" required>
+<ParamField body="password" type="string" required>
   Password for the new user. Must be at least 8 characters and include uppercase letters, lowercase letters, numbers, and special characters (`@$!%*?&`).
 </ParamField>
 
-<ParamField path="role" type="string" required>
+<ParamField body="role" type="string" required>
   Role to assign to the user. Must be one of: `ADMIN`, `ORGANIZER`, `USER`.
 </ParamField>
 
-<ParamField path="firstName" type="string" required>
+<ParamField body="firstName" type="string" required>
   First name of the user.
 </ParamField>
 
-<ParamField path="lastName" type="string" required>
+<ParamField body="lastName" type="string" required>
   Last name of the user.
 </ParamField>
 
-<ParamField path="location" type="string" required>
+<ParamField body="location" type="string" required>
   Geographic location of the user.
 </ParamField>
 
