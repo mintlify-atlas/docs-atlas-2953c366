@@ -1,0 +1,166 @@
+{
+  "projectType": "saas",
+  "projectName": "MeetPoint",
+  "projectDescription": "A social events platform where users can discover, create, and attend events, post comments, rate experiences, and manage memberships — with a full admin dashboard for oversight.",
+  "theme": "almond",
+  "primaryColor": "#6366F1",
+  "lightColor": "#818CF8",
+  "darkColor": "#4338CA",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": ["introduction", "quickstart"]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "features/events",
+              "features/attendances",
+              "features/comments-ratings",
+              "features/memberships",
+              "features/reports"
+            ]
+          },
+          {
+            "group": "User Guide",
+            "pages": [
+              "user-guide/account",
+              "user-guide/creating-events",
+              "user-guide/attending-events"
+            ]
+          },
+          {
+            "group": "Admin Guide",
+            "pages": [
+              "admin-guide/dashboard",
+              "admin-guide/managing-users",
+              "admin-guide/managing-events",
+              "admin-guide/managing-categories",
+              "admin-guide/handling-reports"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "Authentication",
+            "pages": [
+              "api-reference/auth/login",
+              "api-reference/auth/register",
+              "api-reference/auth/refresh-token"
+            ]
+          },
+          {
+            "group": "Events",
+            "pages": [
+              "api-reference/events/get-all",
+              "api-reference/events/get-by-id",
+              "api-reference/events/create",
+              "api-reference/events/edit",
+              "api-reference/events/delete"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api-reference/users/get-all",
+              "api-reference/users/get-by-id",
+              "api-reference/users/create",
+              "api-reference/users/edit",
+              "api-reference/users/delete",
+              "api-reference/users/block"
+            ]
+          },
+          {
+            "group": "Categories",
+            "pages": [
+              "api-reference/categories/overview"
+            ]
+          },
+          {
+            "group": "Attendances",
+            "pages": [
+              "api-reference/attendances/overview"
+            ]
+          },
+          {
+            "group": "Comments",
+            "pages": [
+              "api-reference/comments/overview"
+            ]
+          },
+          {
+            "group": "Ratings",
+            "pages": [
+              "api-reference/ratings/overview"
+            ]
+          },
+          {
+            "group": "Memberships",
+            "pages": [
+              "api-reference/memberships/overview"
+            ]
+          },
+          {
+            "group": "Reports",
+            "pages": [
+              "api-reference/reports/overview"
+            ]
+          },
+          {
+            "group": "Dashboard",
+            "pages": [
+              "api-reference/dashboard/overview"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "keyFeatures": [
+    "Event creation, editing, and deletion with category classification",
+    "Attendance registration for events",
+    "Comments and nested replies on events",
+    "Star rating system for attended events",
+    "Paid membership system with PayPal integration",
+    "User reporting system",
+    "Admin dashboard with full platform overview",
+    "JWT-based authentication with refresh tokens",
+    "Role-based access control (User, Organizer, Admin)",
+    "User account management (profile, password, address)"
+  ],
+  "publicApiSurface": [
+    "POST /api/auth/login",
+    "POST /api/auth/register",
+    "POST /api/auth/refresh-token",
+    "GET /api/events",
+    "GET /api/events/{id}",
+    "POST /api/events",
+    "PUT /api/events/{id}",
+    "DELETE /api/events/{id}",
+    "GET /api/users",
+    "GET /api/users/{id}",
+    "POST /api/users",
+    "PUT /api/users/{id}",
+    "DELETE /api/users/{id}",
+    "PUT /api/users/block/{id}",
+    "GET /api/categories",
+    "POST /api/attendances",
+    "DELETE /api/attendances/{id}",
+    "GET /api/comments",
+    "POST /api/comments",
+    "PUT /api/comments/{id}",
+    "DELETE /api/comments/{id}",
+    "POST /api/ratings",
+    "POST /api/memberships",
+    "GET /api/memberships/state/{userId}",
+    "POST /api/reports",
+    "GET /api/dashboard/info"
+  ]
+}
